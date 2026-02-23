@@ -18,10 +18,8 @@ class Translations {
       'month_7': 'İyul', 'month_8': 'Avqust', 'month_9': 'Sentyabr',
       'month_10': 'Oktyabr', 'month_11': 'Noyabr', 'month_12': 'Dekabr',
 
-
       'day_1': 'Bazar ertəsi', 'day_2': 'Çərşənbə axşamı', 'day_3': 'Çərşənbə',
       'day_4': 'Cümə axşamı', 'day_5': 'Cümə', 'day_6': 'Şənbə', 'day_7': 'Bazar',
-
 
       'hijri_1': 'Məhərrəm', 'hijri_2': 'Səfər', 'hijri_3': 'Rəbiüləvvəl',
       'hijri_4': 'Rəbiülaxır', 'hijri_5': 'Cəmadiyələvvəl', 'hijri_6': 'Cəmadiyəlaxır',
@@ -117,6 +115,37 @@ class Translations {
       'notif_maghrib_body': 'Axşam namazı vaxtı girdi',
       'notif_isha_title': '🌃 İşa Namazı Vaxtı',
       'notif_isha_body': 'İşa namazı vaxtı girdi',
+
+
+      'bug_title': 'Xəta Bildir',
+      'bug_subtitle': 'Xəta haqqında məlumat verin',
+      'bug_desc_label': 'Xətanı təsvir edin',
+      'bug_desc_hint': 'Xəta nə vaxt baş verdi? Nə etmişdiniz?',
+      'bug_device_info': 'Cihaz məlumatı avtomatik göndəriləcək',
+      'bug_send': 'Göndər',
+      'bug_sent_ok': '✅ Xəta bildirişi göndərildi. Təşəkkür edirik!',
+      'bug_sent_fail': '⚠️ Göndərmə alınmadı. Zəhmət olmasa yenidən cəhd edin.',
+      'bug_empty': 'Zəhmət olmasa xətanı təsvir edin',
+
+
+      'contact_title': 'Əlaqə',
+      'contact_subtitle': 'Bizimlə əlaqə saxlayın',
+      'contact_email': 'E-poçt',
+      'contact_telegram': 'Telegram',
+      'contact_email_copy': 'E-poçt kopyalandı',
+      'contact_open_email': 'E-poçt aç',
+      'contact_open_telegram': 'Telegram aç',
+
+
+      'share_title': 'Proqramı Paylaş',
+      'share_subtitle': 'Dostlarınızla paylaşın',
+      'share_apk_title': 'APK Yükle',
+      'share_apk_subtitle': 'GitHub-dan birbaşa yükləyin',
+      'share_apk_copy': 'Link kopyalandı',
+      'share_apk_open': 'GitHub-da aç',
+      'share_text': 'Namaz Vaxtı tətbiqini yoxlayın! Namaz vaxtları, qiblə, dini günlər və daha çox. APK: ',
+      'share_via': 'Digər tətbiqlər vasitəsilə paylaş',
+      'share_link_copied': 'Link kopyalandı!',
     },
 
     'tr': {
@@ -223,6 +252,37 @@ class Translations {
       'notif_maghrib_body': 'Akşam namazı vakti girdi',
       'notif_isha_title': '🌃 Yatsı Namazı Vakti',
       'notif_isha_body': 'Yatsı namazı vakti girdi',
+
+
+      'bug_title': 'Hata Bildir',
+      'bug_subtitle': 'Hata hakkında bilgi verin',
+      'bug_desc_label': 'Hatayı açıklayın',
+      'bug_desc_hint': 'Hata ne zaman oluştu? Ne yapıyordunuz?',
+      'bug_device_info': 'Cihaz bilgisi otomatik gönderilecek',
+      'bug_send': 'Gönder',
+      'bug_sent_ok': '✅ Hata bildirimi gönderildi. Teşekkürler!',
+      'bug_sent_fail': '⚠️ Gönderilemedi. Lütfen tekrar deneyin.',
+      'bug_empty': 'Lütfen hatayı açıklayın',
+
+
+      'contact_title': 'İletişim',
+      'contact_subtitle': 'Bizimle iletişime geçin',
+      'contact_email': 'E-posta',
+      'contact_telegram': 'Telegram',
+      'contact_email_copy': 'E-posta kopyalandı',
+      'contact_open_email': 'E-posta aç',
+      'contact_open_telegram': 'Telegram\'ı aç',
+
+
+      'share_title': 'Uygulamayı Paylaş',
+      'share_subtitle': 'Arkadaşlarınızla paylaşın',
+      'share_apk_title': 'APK İndir',
+      'share_apk_subtitle': 'GitHub\'dan doğrudan indirin',
+      'share_apk_copy': 'Link kopyalandı',
+      'share_apk_open': 'GitHub\'da aç',
+      'share_text': 'Namaz Vakti uygulamasına göz atın! Namaz vakitleri, kıble, dini günler ve daha fazlası. APK: ',
+      'share_via': 'Diğer uygulamalarla paylaş',
+      'share_link_copied': 'Link kopyalandı!',
     },
 
     'en': {
@@ -329,6 +389,37 @@ class Translations {
       'notif_maghrib_body': 'Maghrib prayer time has begun',
       'notif_isha_title': '🌃 Isha Prayer Time',
       'notif_isha_body': 'Isha prayer time has begun',
+
+
+      'bug_title': 'Report a Bug',
+      'bug_subtitle': 'Help us improve the app',
+      'bug_desc_label': 'Describe the issue',
+      'bug_desc_hint': 'When did it happen? What were you doing?',
+      'bug_device_info': 'Device info will be sent automatically',
+      'bug_send': 'Send',
+      'bug_sent_ok': '✅ Bug report sent. Thank you!',
+      'bug_sent_fail': '⚠️ Could not send. Please try again.',
+      'bug_empty': 'Please describe the issue',
+
+
+      'contact_title': 'Contact',
+      'contact_subtitle': 'Get in touch with us',
+      'contact_email': 'Email',
+      'contact_telegram': 'Telegram',
+      'contact_email_copy': 'Email copied',
+      'contact_open_email': 'Open Email',
+      'contact_open_telegram': 'Open Telegram',
+
+
+      'share_title': 'Share App',
+      'share_subtitle': 'Share with your friends',
+      'share_apk_title': 'Download APK',
+      'share_apk_subtitle': 'Download directly from GitHub',
+      'share_apk_copy': 'Link copied',
+      'share_apk_open': 'Open on GitHub',
+      'share_text': 'Check out Prayer Times app! Prayer times, Qibla, holy days and more. APK: ',
+      'share_via': 'Share via other apps',
+      'share_link_copied': 'Link copied!',
     },
 
     'fa': {
@@ -435,6 +526,37 @@ class Translations {
       'notif_maghrib_body': 'وقت نماز مغرب فرا رسید',
       'notif_isha_title': '🌃 وقت نماز عشاء',
       'notif_isha_body': 'وقت نماز عشاء فرا رسید',
+
+
+      'bug_title': 'گزارش خطا',
+      'bug_subtitle': 'به ما در بهبود برنامه کمک کنید',
+      'bug_desc_label': 'خطا را توصیف کنید',
+      'bug_desc_hint': 'خطا چه زمانی رخ داد؟ چه کار می‌کردید؟',
+      'bug_device_info': 'اطلاعات دستگاه به‌طور خودکار ارسال می‌شود',
+      'bug_send': 'ارسال',
+      'bug_sent_ok': '✅ گزارش خطا ارسال شد. ممنون!',
+      'bug_sent_fail': '⚠️ ارسال ناموفق بود. دوباره تلاش کنید.',
+      'bug_empty': 'لطفاً خطا را توصیف کنید',
+
+
+      'contact_title': 'تماس با ما',
+      'contact_subtitle': 'با ما در تماس باشید',
+      'contact_email': 'ایمیل',
+      'contact_telegram': 'تلگرام',
+      'contact_email_copy': 'ایمیل کپی شد',
+      'contact_open_email': 'باز کردن ایمیل',
+      'contact_open_telegram': 'باز کردن تلگرام',
+
+
+      'share_title': 'اشتراک‌گذاری برنامه',
+      'share_subtitle': 'با دوستان خود به اشتراک بگذارید',
+      'share_apk_title': 'دانلود APK',
+      'share_apk_subtitle': 'مستقیم از GitHub دانلود کنید',
+      'share_apk_copy': 'لینک کپی شد',
+      'share_apk_open': 'باز کردن در GitHub',
+      'share_text': 'برنامه اوقات نماز را ببینید! اوقات نماز، قبله، روزهای مذهبی و بیشتر. APK: ',
+      'share_via': 'اشتراک‌گذاری از طریق برنامه‌های دیگر',
+      'share_link_copied': 'لینک کپی شد!',
     },
 
     'ar': {
@@ -541,6 +663,36 @@ class Translations {
       'notif_maghrib_body': 'حان وقت صلاة المغرب',
       'notif_isha_title': '🌃 وقت صلاة العشاء',
       'notif_isha_body': 'حان وقت صلاة العشاء',
+
+
+      'bug_title': 'الإبلاغ عن خطأ',
+      'bug_subtitle': 'ساعدنا في تحسين التطبيق',
+      'bug_desc_label': 'وصف المشكلة',
+      'bug_desc_hint': 'متى حدثت المشكلة؟ ماذا كنت تفعل؟',
+      'bug_device_info': 'سيتم إرسال معلومات الجهاز تلقائياً',
+      'bug_send': 'إرسال',
+      'bug_sent_ok': '✅ تم إرسال تقرير الخطأ. شكراً!',
+      'bug_sent_fail': '⚠️ فشل الإرسال. يرجى المحاولة مرة أخرى.',
+      'bug_empty': 'يرجى وصف المشكلة',
+
+
+      'contact_title': 'تواصل معنا',
+      'contact_subtitle': 'نحن هنا للمساعدة',
+      'contact_email': 'البريد الإلكتروني',
+      'contact_telegram': 'تيليغرام',
+      'contact_email_copy': 'تم نسخ البريد الإلكتروني',
+      'contact_open_email': 'فتح البريد الإلكتروني',
+      'contact_open_telegram': 'فتح تيليغرام',
+
+      'share_title': 'مشاركة التطبيق',
+      'share_subtitle': 'شارك مع أصدقائك',
+      'share_apk_title': 'تحميل APK',
+      'share_apk_subtitle': 'تحميل مباشر من GitHub',
+      'share_apk_copy': 'تم نسخ الرابط',
+      'share_apk_open': 'فتح على GitHub',
+      'share_text': 'جرّب تطبيق أوقات الصلاة! أوقات الصلاة والقبلة والأيام الدينية والمزيد. APK: ',
+      'share_via': 'مشاركة عبر تطبيقات أخرى',
+      'share_link_copied': 'تم نسخ الرابط!',
     },
 
     'id': {
@@ -582,7 +734,6 @@ class Translations {
 
       'religious_days': 'Hari-Hari Suci', 'miladi': 'Masehi',
       'hijri': 'Hijriah', 'year_range': '2025 – 2026',
-
 
       'hd_mirac': 'Isra Mi\'raj',
       'hd_berat': 'Malam Nisfu Sya\'ban',
@@ -647,6 +798,36 @@ class Translations {
       'notif_maghrib_body': 'Waktu shalat Maghrib telah tiba',
       'notif_isha_title': '🌃 Waktu Shalat Isya',
       'notif_isha_body': 'Waktu shalat Isya telah tiba',
+
+
+      'bug_title': 'Laporkan Bug',
+      'bug_subtitle': 'Bantu kami memperbaiki aplikasi',
+      'bug_desc_label': 'Jelaskan masalahnya',
+      'bug_desc_hint': 'Kapan terjadi? Apa yang sedang Anda lakukan?',
+      'bug_device_info': 'Info perangkat akan dikirim otomatis',
+      'bug_send': 'Kirim',
+      'bug_sent_ok': '✅ Laporan bug terkirim. Terima kasih!',
+      'bug_sent_fail': '⚠️ Gagal mengirim. Silakan coba lagi.',
+      'bug_empty': 'Mohon jelaskan masalahnya',
+
+
+      'contact_title': 'Hubungi Kami',
+      'contact_subtitle': 'Kami siap membantu',
+      'contact_email': 'Email',
+      'contact_telegram': 'Telegram',
+      'contact_email_copy': 'Email disalin',
+      'contact_open_email': 'Buka Email',
+      'contact_open_telegram': 'Buka Telegram',
+
+      'share_title': 'Bagikan Aplikasi',
+      'share_subtitle': 'Bagikan kepada teman-teman',
+      'share_apk_title': 'Unduh APK',
+      'share_apk_subtitle': 'Unduh langsung dari GitHub',
+      'share_apk_copy': 'Tautan disalin',
+      'share_apk_open': 'Buka di GitHub',
+      'share_text': 'Coba aplikasi Waktu Shalat! Waktu shalat, kiblat, hari suci dan lainnya. APK: ',
+      'share_via': 'Bagikan via aplikasi lain',
+      'share_link_copied': 'Tautan disalin!',
     },
   };
 }

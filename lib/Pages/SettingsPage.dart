@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:namazvaktim/Pages/NotificationsPage.dart';
+import 'package:namazvaktim/Pages/ReportBugPage.dart';
+import 'package:namazvaktim/Pages/ContactPage.dart';
+import 'package:namazvaktim/Pages/ShareAppPage.dart';
 import 'package:namazvaktim/services/language_service.dart';
 
 class SettingsPage extends StatefulWidget {
@@ -42,6 +45,7 @@ class _SettingsPageState extends State<SettingsPage> {
       builder: (context) => Dialog(
         backgroundColor: const Color(0xFF0D1B2A),
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
+
         insetPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 24),
         child: Padding(
           padding: const EdgeInsets.all(20.0),
@@ -58,6 +62,7 @@ class _SettingsPageState extends State<SettingsPage> {
                 ),
               ),
               const SizedBox(height: 16),
+
               ConstrainedBox(
                 constraints: BoxConstraints(
                   maxHeight: MediaQuery.of(context).size.height * 0.6,
@@ -243,6 +248,7 @@ class _SettingsPageState extends State<SettingsPage> {
                 ),
                 const SizedBox(height: 24),
 
+
                 Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 20),
                   child: Container(
@@ -275,6 +281,7 @@ class _SettingsPageState extends State<SettingsPage> {
                           ),
                         ),
                         const SizedBox(height: 12),
+
                         Text(
                           _lang.t('app_name'),
                           style: const TextStyle(
@@ -348,16 +355,22 @@ class _SettingsPageState extends State<SettingsPage> {
                           icon: Icons.bug_report_outlined,
                           iconColor: const Color(0xFFFF6B6B),
                           title: _lang.t('report_bug'),
+                          onTap: () => Navigator.push(context,
+                              MaterialPageRoute(builder: (context) => const ReportBugPage())),
                         ),
                         _settingsItem(
                           icon: Icons.mail_outline_rounded,
                           iconColor: const Color(0xFFB39DDB),
                           title: _lang.t('contact'),
+                          onTap: () => Navigator.push(context,
+                              MaterialPageRoute(builder: (context) => const ContactPage())),
                         ),
                         _settingsItem(
                           icon: Icons.share_outlined,
                           iconColor: const Color(0xFF80CBC4),
                           title: _lang.t('share_app'),
+                          onTap: () => Navigator.push(context,
+                              MaterialPageRoute(builder: (context) => const ShareAppPage())),
                         ),
                       ],
                     ),
