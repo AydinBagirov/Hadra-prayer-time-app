@@ -149,7 +149,7 @@ class _ShareAppPageState extends State<ShareAppPage> {
                                 child: ClipRRect(
                                   borderRadius: BorderRadius.circular(18),
                                   child: Image.asset(
-                                      'assets/images/AppLogo.png',
+                                      'assets/images/ApplicationLogo.png',
                                       fit: BoxFit.cover),
                                 ),
                               ),

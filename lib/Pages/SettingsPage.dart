@@ -276,7 +276,7 @@ class _SettingsPageState extends State<SettingsPage> {
                           ),
                           child: ClipRRect(
                             borderRadius: BorderRadius.circular(18),
-                            child: Image.asset('assets/images/AppLogo.png',
+                            child: Image.asset('assets/images/ApplicationLogo.png',
                                 fit: BoxFit.cover),
                           ),
                         ),

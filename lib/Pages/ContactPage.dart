@@ -252,7 +252,7 @@ class _ContactPageState extends State<ContactPage> {
                                   ),
                                   shape: BoxShape.circle,
                                 ),
-                                child: Image.asset('assets/images/AppLogo.png',
+                                child: Image.asset('assets/images/ApplicationLogo.png',
                                     fit: BoxFit.cover),
                               ),
                               const SizedBox(height: 12),

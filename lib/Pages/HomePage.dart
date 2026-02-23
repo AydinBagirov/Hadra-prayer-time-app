@@ -653,7 +653,7 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
                         decoration: BoxDecoration(borderRadius: BorderRadius.circular(11),
                             color: Colors.white.withOpacity(0.05), border: Border.all(color: Colors.white12)),
                         child: ClipRRect(borderRadius: BorderRadius.circular(11),
-                            child: Image.asset("assets/images/AppLogo.png", fit: BoxFit.cover)),
+                            child: Image.asset("assets/images/ApplicationLogo.png", fit: BoxFit.cover)),
                       ),
                       const SizedBox(width: 10),
                       Expanded(

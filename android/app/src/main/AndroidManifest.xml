@@ -33,7 +33,7 @@
         </intent>
     </queries>
     <application
-        android:label="Namaz Vaxtı"
+        android:label="Hadra"
         android:name="${applicationName}"
         android:icon="@mipmap/ic_launcher">
         <receiver android:name="com.dexterous.flutterlocalnotifications.ScheduledNotificationReceiver"
