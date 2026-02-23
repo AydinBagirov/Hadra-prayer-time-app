@@ -15,7 +15,7 @@ class _ShareAppPageState extends State<ShareAppPage> {
   final LanguageService _lang = LanguageService();
 
   static const String _apkUrl =
-      'https://github.com/AydinBagirov/Namaz-Vaxti/releases/tag/v2.2.1';
+      'https://github.com/AydinBagirov/Namaz-Vaxti/releases/tag/v2.5.0';
 
   @override
   void initState() {
