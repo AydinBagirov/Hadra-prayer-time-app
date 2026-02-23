@@ -3,6 +3,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:timezone/timezone.dart' as tz;
 import 'package:timezone/data/latest.dart' as tz;
 import 'ezan_service.dart';
+import 'language_service.dart';
 
 class NotificationService {
   static final FlutterLocalNotificationsPlugin _notifications =
@@ -73,38 +74,59 @@ class NotificationService {
     await cancelAll();
 
     final prefs = await SharedPreferences.getInstance();
+    final lang = LanguageService();
 
     await _scheduleIfEnabled(
-        1, '🌙 İmsak Vaxtı', 'İmsak vaxtı girdi', imsak, 'imsak',
+        1,
+        lang.t('notif_imsak_title'),
+        lang.t('notif_imsak_body'),
+        imsak,
+        'imsak',
         prefs.getBool('imsakNotification') ?? true,
         prefs.getBool('imsakEzan') ?? false);
 
     await _scheduleIfEnabled(
-        2, '🌅 Günəş Vaxtı', 'Günəş doğdu', sunrise, 'sunrise',
+        2,
+        lang.t('notif_sunrise_title'),
+        lang.t('notif_sunrise_body'),
+        sunrise,
+        'sunrise',
         prefs.getBool('sunriseNotification') ?? true,
         prefs.getBool('sunriseEzan') ?? false);
 
     await _scheduleIfEnabled(
-        3, '☀️ Günorta Namazı Vaxtı', 'Günorta namazı vaxtı girdi',
-        dhuhr, 'dhuhr',
+        3,
+        lang.t('notif_dhuhr_title'),
+        lang.t('notif_dhuhr_body'),
+        dhuhr,
+        'dhuhr',
         prefs.getBool('dhuhrNotification') ?? true,
         prefs.getBool('dhuhrEzan') ?? true);
 
     await _scheduleIfEnabled(
-        4, '🌤️ Əsr Namazı Vaxtı', 'Əsr namazı vaxtı girdi',
-        asr, 'asr',
+        4,
+        lang.t('notif_asr_title'),
+        lang.t('notif_asr_body'),
+        asr,
+        'asr',
         prefs.getBool('asrNotification') ?? true,
         prefs.getBool('asrEzan') ?? true);
 
     await _scheduleIfEnabled(
-        5, '🌆 Axşam Namazı Vaxtı', 'Axşam namazı vaxtı girdi',
-        maghrib, 'maghrib',
+        5,
+        lang.t('notif_maghrib_title'),
+        lang.t('notif_maghrib_body'),
+        maghrib,
+        'maghrib',
         prefs.getBool('maghribNotification') ?? true,
         prefs.getBool('maghribEzan') ?? true);
 
     await _scheduleIfEnabled(
-        6, '🌃 İşa Namazı Vaxtı', 'İşa namazı vaxtı girdi',
-        isha, 'isha',
+        6,
+        lang.t('notif_isha_title'),
+        lang.t('notif_isha_body'),
+        isha,
+        'isha',
         prefs.getBool('ishaNotification') ?? true,
         prefs.getBool('ishaEzan') ?? true);
   }
@@ -156,7 +178,6 @@ class NotificationService {
 
     final tzDate = tz.TZDateTime.from(scheduled, tz.local);
 
-
     final prefs = await SharedPreferences.getInstance();
     final selectedEzan = prefs.getString('selectedEzan') ?? 'default';
 
@@ -199,7 +220,6 @@ class NotificationService {
       payload: 'ezan:$prayerKey',
     );
   }
-
 
   static Future<void> sendTestNotification() async {
     await initialize();

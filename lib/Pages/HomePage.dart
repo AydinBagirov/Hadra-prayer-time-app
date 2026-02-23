@@ -5,6 +5,7 @@ import 'package:hijri_date/hijri.dart';
 import 'package:namazvaktim/Pages/ImsakiyePage.dart';
 import 'package:namazvaktim/Pages/MapPickerPage.dart';
 import 'package:namazvaktim/models/PrayerModels.dart';
+import 'package:namazvaktim/services/language_service.dart';
 import 'package:namazvaktim/services/notification_service.dart';
 
 import '../location/location_service.dart';
@@ -31,6 +32,8 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
   late Animation<double> _fadeAnimation;
   late Animation<double> _pulseAnimation;
 
+  final LanguageService _lang = LanguageService();
+
   final now = DateTime.now();
   final months = [
     "", "Yanvar", "Fevral", "Mart", "Aprel", "May", "İyun", "İyul",
@@ -47,18 +50,22 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
     "Ramazan", "Şəvval", "Zilqədə", "Zilhiccə",
   ];
 
-  static const Map<String, IconData> _vakitIkonlar = {
-    'İmsak':   Icons.wb_twilight_rounded,
-    'Günəş':   Icons.wb_sunny_outlined,
-    'Günorta': Icons.wb_sunny,
-    'Əsr':     Icons.cloud_queue_rounded,
-    'Axşam':   Icons.nightlight_round_sharp,
-    'İşa':     Icons.nights_stay,
+  Map<String, IconData> get _vakitIkonlar => {
+    _lang.t('imsak'):   Icons.wb_twilight_rounded,
+    _lang.t('sunrise'): Icons.wb_sunny_outlined,
+    _lang.t('dhuhr'):   Icons.wb_sunny,
+    _lang.t('asr'):     Icons.cloud_queue_rounded,
+    _lang.t('maghrib'): Icons.nightlight_round_sharp,
+    _lang.t('isha'):    Icons.nights_stay,
   };
+
+  final List<String> _vakitKeys = ['imsak', 'sunrise', 'dhuhr', 'asr', 'maghrib', 'isha'];
 
   @override
   void initState() {
     super.initState();
+    _lang.addListener(_onLangChanged);
+
     SystemChrome.setSystemUIOverlayStyle(const SystemUiOverlayStyle(
       statusBarColor: Colors.transparent,
       statusBarIconBrightness: Brightness.light,
@@ -76,24 +83,38 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
     _ticker = Ticker((_) { hesaplaKalanSure(); })..start();
   }
 
+  void _onLangChanged() => setState(() {});
+
   @override
   void dispose() {
+    _lang.removeListener(_onLangChanged);
     _ticker.dispose();
     _fadeController.dispose();
     _pulseController.dispose();
     super.dispose();
   }
 
+  // Hicri tarihi mevcut dilde gösterir
   String _getHijriDateText() {
     HijriDate.setLocal('tr');
     final yesterday = DateTime.now().subtract(const Duration(days: 1));
     final hijri = HijriDate.fromDate(yesterday);
-    final monthName = _hijriMonthsAz[hijri.hMonth];
+    final monthName = _lang.t('hijri_${hijri.hMonth}');
     return "${hijri.hDay} $monthName ${hijri.hYear}";
   }
 
+  // Miladi ay adını dile göre döndürür
+  String _getLocalizedMonth(int month) {
+    return _lang.t('month_$month');
+  }
+
+  // Haftanın gününü dile göre döndürür (tam isim)
+  String _getLocalizedDay(int weekday) {
+    return _lang.t('day_$weekday');
+  }
+
   String _getCleanCityName(String? name, {int maxLength = 20}) {
-    if (name == null) return "Yüklənir...";
+    if (name == null) return _lang.t('location_loading');
     String cleanName = name;
     if (cleanName.startsWith('GPS: ')) cleanName = cleanName.substring(5);
     if (cleanName.startsWith('Xəritə: ')) cleanName = cleanName.substring(8);
@@ -109,20 +130,18 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
       setState(() { currentLocation = savedLocation; });
       loadPrayerTimes();
     } else {
-      print('🎯 İlk açılış - GPS ile konum alınıyor...');
       setState(() { loading = true; });
 
       final gpsLocation = await locationService.getCurrentLocation();
 
       if (gpsLocation != null) {
-        print('✅ GPS konumu alındı: ${gpsLocation.name}');
         setState(() { currentLocation = gpsLocation; });
         await locationService.saveLocation(gpsLocation);
 
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
-              content: Text('📍 Mövqe təyin edildi: ${_getCleanCityName(gpsLocation.name)}',
+              content: Text('${_lang.t('gps_set')}: ${_getCleanCityName(gpsLocation.name)}',
                   style: const TextStyle(fontFamily: 'MyFont2')),
               backgroundColor: const Color(0xFF1E3A5F),
               behavior: SnackBarBehavior.floating,
@@ -133,7 +152,6 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
         }
         loadPrayerTimes();
       } else {
-        print('⚠️ GPS alınamadı - Bakı varsayılan olarak seçildi');
         final defaultCity = AzerbaijanCities.cities.first;
         setState(() { currentLocation = defaultCity; });
         await locationService.saveLocation(defaultCity);
@@ -141,14 +159,14 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
-              content: const Text('⚠️ GPS alınamadı. Bakı seçildi. Ayarlardan dəyişdirə bilərsiniz.',
-                  style: TextStyle(fontFamily: 'MyFont2')),
+              content: Text(_lang.t('gps_failed'),
+                  style: const TextStyle(fontFamily: 'MyFont2')),
               backgroundColor: const Color(0xFF3A2A0F),
               behavior: SnackBarBehavior.floating,
               shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
               duration: const Duration(seconds: 5),
               action: SnackBarAction(
-                label: 'Dəyiş',
+                label: _lang.t('change'),
                 textColor: const Color(0xFFFFD700),
                 onPressed: () { _showCitySelection(); },
               ),
@@ -175,41 +193,15 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
 
   void loadPrayerTimes() async {
     final location = currentLocation;
-    if (location == null) {
-      print('⚠️ currentLocation null, vakitler yüklenemiyor');
-      return;
-    }
-
-    print('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
-    print('🔄 loadPrayerTimes BAŞLADI');
-    print('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
-    print('📍 Şehir ADI: ${location.name}');
-    print('📍 GPS Flag: ${location.isGpsLocation}');
-    print('📍 Koordinatlar: ${location.latitude}, ${location.longitude}');
-    print('📍 Timezone: ${location.timezone}');
-    print('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+    if (location == null) return;
 
     setState(() => loading = true);
 
     final service = PrayerService();
     final today = DateTime.now();
-    print('📅 Tarih: ${today.day}/${today.month}/${today.year}');
-
     final data = await service.getPrayerTimes(location, today);
 
-    print('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
-    print('🔍 API Response: ${data != null ? "Var" : "Null"}');
-
     if (data != null) {
-      print('✅ VERİ ALINDI');
-      print('🕌 İmsak: ${data.data.timings.imsak}');
-      print('🕌 Günəş: ${data.data.timings.sunrise}');
-      print('🕌 Günorta: ${data.data.timings.dhuhr}');
-      print('🕌 Əsr: ${data.data.timings.asr}');
-      print('🕌 Axşam: ${data.data.timings.maghrib}');
-      print('🕌 İşa: ${data.data.timings.isha}');
-      print('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
-
       final adjustedTimings = Timings(
         imsak: _adjustTime(data.data.timings.imsak, 10),
         fajr: data.data.timings.fajr,
@@ -223,8 +215,6 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
         firstthird: data.data.timings.firstthird,
         lastthird: data.data.timings.lastthird,
       );
-
-      print('✏️ Adjusted İmsak: ${adjustedTimings.imsak}');
 
       if (mounted) {
         setState(() {
@@ -240,13 +230,9 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
           loading = false;
         });
         _fadeController.forward(from: 0);
-        print('✅ STATE GÜNCELLENDİ');
-        print('🎯 Yeni state - İmsak: ${prayerTimes!.data.timings.imsak}');
-        print('🗓️ Hicri: ${_getHijriDateText()}');
       }
 
       try {
-        final notificationService = NotificationService();
         await NotificationService.schedulePrayerNotifications(
           imsak: adjustedTimings.imsak,
           sunrise: adjustedTimings.sunrise,
@@ -255,27 +241,20 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
           maghrib: adjustedTimings.maghrib,
           isha: adjustedTimings.isha,
         );
-        print('✅ Bildirişlər uğurla təyin edildi');
       } catch (e) {
         print('❌ Bildiriş xətası: $e');
       }
     } else {
-      print('❌ API\'den veri alınamadı - data null');
       setState(() => loading = false);
     }
 
     hesaplaKalanSure();
 
-    print('📥 30 günlük veri indiriliyor...');
     service.fetch30DaysPrayerTimes(location).then((_) {
       print('✅ 30 günlük namaz vaxtları yaddaşa yazıldı');
     }).catchError((e) {
       print('❌ 30 günlük məlumat yükləmə xətası: $e');
     });
-
-    print('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
-    print('🔄 loadPrayerTimes BİTTİ');
-    print('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
   }
 
   void hesaplaKalanSure() {
@@ -285,12 +264,12 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
     final t = prayerTimes!.data.timings;
 
     final vakitler = {
-      'İmsak':   _parseTime(t.imsak),
-      'Günəş':   _parseTime(t.sunrise),
-      'Günorta': _parseTime(t.dhuhr),
-      'Əsr':     _parseTime(t.asr),
-      'Axşam':   _parseTime(t.maghrib),
-      'İşa':     _parseTime(t.isha),
+      _lang.t('imsak'):   _parseTime(t.imsak),
+      _lang.t('sunrise'): _parseTime(t.sunrise),
+      _lang.t('dhuhr'):   _parseTime(t.dhuhr),
+      _lang.t('asr'):     _parseTime(t.asr),
+      _lang.t('maghrib'): _parseTime(t.maghrib),
+      _lang.t('isha'):    _parseTime(t.isha),
     };
 
     DateTime? sonrakiVakit;
@@ -303,7 +282,7 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
       if (entry.value.isAfter(now)) {
         sonrakiVakit = entry.value;
         sonrakiAd = entry.key;
-        suAnkiVakit = i > 0 ? vakitListesi[i - 1].key : 'İşa';
+        suAnkiVakit = i > 0 ? vakitListesi[i - 1].key : _lang.t('isha');
         break;
       }
     }
@@ -311,7 +290,7 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
     if (sonrakiVakit == null) {
       sonrakiVakit = vakitler.values.first.add(const Duration(days: 1));
       sonrakiAd = vakitler.keys.first;
-      suAnkiVakit = 'İşa';
+      suAnkiVakit = _lang.t('isha');
     }
 
     setState(() {
@@ -341,13 +320,13 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
             borderRadius: BorderRadius.circular(24),
             border: Border.all(color: Colors.white12),
           ),
-          child: const Column(
+          child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              CircularProgressIndicator(color: Color(0xFF4ECDC4)),
-              SizedBox(height: 18),
-              Text('GPS ilə dəqiq mövqe alınır...',
-                  style: TextStyle(fontFamily: 'MyFont2', color: Colors.white70)),
+              const CircularProgressIndicator(color: Color(0xFF4ECDC4)),
+              const SizedBox(height: 18),
+              Text(_lang.t('gps_loading'),
+                  style: const TextStyle(fontFamily: 'MyFont2', color: Colors.white70)),
             ],
           ),
         ),
@@ -382,16 +361,15 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
           builder: (context) => AlertDialog(
             backgroundColor: const Color(0xFF0D1B2A),
             shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-            title: const Text('Xəta',
-                style: TextStyle(fontFamily: 'MyFont2', color: Colors.white)),
-            content: const Text(
-                'GPS ilə mövqe alına bilmədi. Mövqe xidmətini açın və yenidən cəhd edin.',
-                style: TextStyle(fontFamily: 'MyFont2', color: Colors.white60)),
+            title: Text(_lang.t('gps_error_title'),
+                style: const TextStyle(fontFamily: 'MyFont2', color: Colors.white)),
+            content: Text(_lang.t('gps_error_body'),
+                style: const TextStyle(fontFamily: 'MyFont2', color: Colors.white60)),
             actions: [
               TextButton(
                 onPressed: () => Navigator.of(context).pop(),
-                child: const Text('Bağla',
-                    style: TextStyle(fontFamily: 'MyFont2', color: Color(0xFF4ECDC4))),
+                child: Text(_lang.t('close'),
+                    style: const TextStyle(fontFamily: 'MyFont2', color: Color(0xFF4ECDC4))),
               ),
             ],
           ),
@@ -411,8 +389,8 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              const Text('Mövqe Seçin',
-                  style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold,
+              Text(_lang.t('select_location'),
+                  style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold,
                       fontFamily: 'MyFont2', color: Colors.white)),
               const SizedBox(height: 15),
 
@@ -421,8 +399,8 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
                 borderColor: const Color(0xFF4ECDC4),
                 icon: Icons.my_location_rounded,
                 iconColor: const Color(0xFF4ECDC4),
-                title: 'GPS ilə avtomatik',
-                subtitle: 'Hal-hazırkı mövqe',
+                title: _lang.t('gps_auto'),
+                subtitle: _lang.t('gps_current'),
                 isSelected: (currentLocation?.isGpsLocation ?? false) &&
                     !currentLocation!.name.startsWith('Xəritə:'),
                 onTap: () { Navigator.of(context).pop(); _getLocationFromGps(); },
@@ -435,24 +413,19 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
                 borderColor: const Color(0xFF5B9BD5),
                 icon: Icons.map_rounded,
                 iconColor: const Color(0xFF5B9BD5),
-                title: 'Xəritədən seç',
-                subtitle: 'Dəqiq koordinat',
+                title: _lang.t('map_select'),
+                subtitle: _lang.t('map_precise'),
                 isSelected: currentLocation?.name.startsWith('Xəritə:') ?? false,
                 onTap: () async {
                   Navigator.of(context).pop();
-                  print('🗺️ Harita sayfası açılıyor...');
                   final result = await Navigator.push(
                     context,
                     MaterialPageRoute(
                         builder: (context) => MapPickerPage(currentLocation: currentLocation)),
                   );
-                  print('🗺️ Haritadan dönüldü. Result: $result');
                   if (result != null && result is CityLocation) {
-                    print('✅ Yeni konum seçildi: ${result.name}');
-                    print('📍 Koordinatlar: ${result.latitude}, ${result.longitude}');
                     setState(() => currentLocation = result);
                     await LocationService().saveLocation(result);
-                    print('🔄 loadPrayerTimes() çağrılıyor...');
                     loadPrayerTimes();
                     if (mounted) {
                       ScaffoldMessenger.of(context).showSnackBar(
@@ -466,8 +439,6 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
                         ),
                       );
                     }
-                  } else {
-                    print('⚠️ Konum seçilmedi veya iptal edildi');
                   }
                 },
               ),
@@ -478,8 +449,8 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
                   const Expanded(child: Divider(color: Colors.white12)),
                   Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 12),
-                    child: const Text('Şəhər seçin',
-                        style: TextStyle(fontFamily: 'MyFont2', fontSize: 12, color: Colors.white38)),
+                    child: Text(_lang.t('select_city'),
+                        style: const TextStyle(fontFamily: 'MyFont2', fontSize: 12, color: Colors.white38)),
                   ),
                   const Expanded(child: Divider(color: Colors.white12)),
                 ]),
@@ -524,14 +495,10 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
   }
 
   Widget _dialogOptionCard({
-    required Color color,
-    required Color borderColor,
-    required IconData icon,
-    required Color iconColor,
-    required String title,
-    required String subtitle,
-    required bool isSelected,
-    required VoidCallback onTap,
+    required Color color, required Color borderColor,
+    required IconData icon, required Color iconColor,
+    required String title, required String subtitle,
+    required bool isSelected, required VoidCallback onTap,
   }) {
     return GestureDetector(
       onTap: onTap,
@@ -540,34 +507,30 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
         decoration: BoxDecoration(
           color: color,
           borderRadius: BorderRadius.circular(14),
-          border: Border.all(
-              color: isSelected ? borderColor : Colors.white12,
+          border: Border.all(color: isSelected ? borderColor : Colors.white12,
               width: isSelected ? 1.5 : 1),
         ),
         child: Row(
           children: [
             Container(
               padding: const EdgeInsets.all(8),
-              decoration: BoxDecoration(
-                  color: iconColor.withOpacity(0.15),
+              decoration: BoxDecoration(color: iconColor.withOpacity(0.15),
                   borderRadius: BorderRadius.circular(10)),
               child: Icon(icon, color: iconColor, size: 22),
             ),
             const SizedBox(width: 12),
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(title,
-                    style: TextStyle(fontFamily: 'MyFont2',
-                        fontWeight: FontWeight.bold, color: iconColor, fontSize: 14)),
-                Text(subtitle,
-                    style: const TextStyle(
-                        fontFamily: 'MyFont2', fontSize: 11, color: Colors.white38)),
-              ],
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(title, style: TextStyle(fontFamily: 'MyFont2',
+                      fontWeight: FontWeight.bold, color: iconColor, fontSize: 14)),
+                  Text(subtitle, style: const TextStyle(
+                      fontFamily: 'MyFont2', fontSize: 11, color: Colors.white38)),
+                ],
+              ),
             ),
-            const Spacer(),
-            if (isSelected)
-              Icon(Icons.check_circle_rounded, color: iconColor, size: 20),
+            if (isSelected) Icon(Icons.check_circle_rounded, color: iconColor, size: 20),
           ],
         ),
       ),
@@ -584,48 +547,32 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
       margin: const EdgeInsets.symmetric(horizontal: 20, vertical: 5),
       padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 14),
       decoration: BoxDecoration(
-        color: isAktif
-            ? Colors.white.withOpacity(0.10)
-            : Colors.white.withOpacity(0.04),
+        color: isAktif ? Colors.white.withOpacity(0.10) : Colors.white.withOpacity(0.04),
         borderRadius: BorderRadius.circular(18),
         border: Border.all(
-          color: isAktif
-              ? const Color(0xFF4ECDC4).withOpacity(0.55)
-              : Colors.white.withOpacity(0.07),
+          color: isAktif ? const Color(0xFF4ECDC4).withOpacity(0.55) : Colors.white.withOpacity(0.07),
           width: isAktif ? 1.5 : 1,
         ),
         boxShadow: isAktif
-            ? [BoxShadow(
-            color: const Color(0xFF4ECDC4).withOpacity(0.10),
-            blurRadius: 18, spreadRadius: 1)]
+            ? [BoxShadow(color: const Color(0xFF4ECDC4).withOpacity(0.10), blurRadius: 18, spreadRadius: 1)]
             : [],
       ),
       child: Row(
         children: [
           Container(
-            width: 40,
-            height: 40,
+            width: 40, height: 40,
             decoration: BoxDecoration(
-              color: isAktif
-                  ? const Color(0xFF4ECDC4).withOpacity(0.18)
-                  : Colors.white.withOpacity(0.06),
+              color: isAktif ? const Color(0xFF4ECDC4).withOpacity(0.18) : Colors.white.withOpacity(0.06),
               borderRadius: BorderRadius.circular(12),
             ),
-            child: Icon(icon,
-                color: isAktif ? const Color(0xFF4ECDC4) : Colors.white38,
-                size: 20),
+            child: Icon(icon, color: isAktif ? const Color(0xFF4ECDC4) : Colors.white38, size: 20),
           ),
           const SizedBox(width: 14),
-          Text(
-            ad,
-            style: TextStyle(
-              fontFamily: 'MyFont2',
-              fontSize: 16,
-              fontWeight: isAktif ? FontWeight.bold : FontWeight.w400,
-              color: isAktif ? Colors.white : Colors.white60,
-              letterSpacing: 0.3,
-            ),
-          ),
+          Text(ad, style: TextStyle(
+            fontFamily: 'MyFont2', fontSize: 16,
+            fontWeight: isAktif ? FontWeight.bold : FontWeight.w400,
+            color: isAktif ? Colors.white : Colors.white60, letterSpacing: 0.3,
+          )),
           const Spacer(),
           if (isAktif)
             Container(
@@ -636,20 +583,14 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
                 borderRadius: BorderRadius.circular(20),
                 border: Border.all(color: const Color(0xFF4ECDC4).withOpacity(0.35)),
               ),
-              child: const Text('İndi',
-                  style: TextStyle(fontFamily: 'MyFont2',
-                      fontSize: 11, color: Color(0xFF4ECDC4))),
+              child: Text(_lang.t('now_label'),
+                  style: const TextStyle(fontFamily: 'MyFont2', fontSize: 11, color: Color(0xFF4ECDC4))),
             ),
-          Text(
-            saat,
-            style: TextStyle(
-              fontFamily: 'MyFont2',
-              fontSize: 16,
-              fontWeight: isAktif ? FontWeight.bold : FontWeight.w400,
-              color: isAktif ? Colors.white : Colors.white70,
-              letterSpacing: 1,
-            ),
-          ),
+          Text(saat, style: TextStyle(
+            fontFamily: 'MyFont2', fontSize: 16,
+            fontWeight: isAktif ? FontWeight.bold : FontWeight.w400,
+            color: isAktif ? Colors.white : Colors.white70, letterSpacing: 1,
+          )),
         ],
       ),
     );
@@ -659,8 +600,7 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
     return GestureDetector(
       onTap: onTap,
       child: Container(
-        width: 38,
-        height: 38,
+        width: 38, height: 38,
         decoration: BoxDecoration(
           color: Colors.white.withOpacity(0.05),
           borderRadius: BorderRadius.circular(12),
@@ -681,71 +621,55 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
             child: Container(
               decoration: const BoxDecoration(
                 gradient: LinearGradient(
-                  begin: Alignment.topLeft,
-                  end: Alignment.bottomRight,
+                  begin: Alignment.topLeft, end: Alignment.bottomRight,
                   colors: [Color(0xFF0D1B2A), Color(0xFF080E1A), Color(0xFF0A1628)],
                 ),
               ),
             ),
           ),
 
-          Positioned(
-            top: -80, right: -60,
-            child: Container(
-              width: 280, height: 280,
-              decoration: BoxDecoration(
-                shape: BoxShape.circle,
-                gradient: RadialGradient(
-                  colors: [const Color(0xFF4ECDC4).withOpacity(0.12), Colors.transparent],
-                ),
-              ),
+          Positioned(top: -80, right: -60,
+            child: Container(width: 280, height: 280,
+              decoration: BoxDecoration(shape: BoxShape.circle,
+                  gradient: RadialGradient(colors: [const Color(0xFF4ECDC4).withOpacity(0.12), Colors.transparent])),
             ),
           ),
-          Positioned(
-            bottom: 100, left: -80,
-            child: Container(
-              width: 200, height: 200,
-              decoration: BoxDecoration(
-                shape: BoxShape.circle,
-                gradient: RadialGradient(
-                  colors: [const Color(0xFF5B9BD5).withOpacity(0.08), Colors.transparent],
-                ),
-              ),
+          Positioned(bottom: 100, left: -80,
+            child: Container(width: 200, height: 200,
+              decoration: BoxDecoration(shape: BoxShape.circle,
+                  gradient: RadialGradient(colors: [const Color(0xFF5B9BD5).withOpacity(0.08), Colors.transparent])),
             ),
           ),
 
           SafeArea(
             child: Column(
               children: [
-
                 Padding(
                   padding: const EdgeInsets.fromLTRB(20, 16, 20, 0),
                   child: Row(
                     children: [
                       Container(
                         width: 38, height: 38,
-                        decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(11),
-                          color: Colors.white.withOpacity(0.05),
-                          border: Border.all(color: Colors.white12),
-                        ),
-                        child: ClipRRect(
-                          borderRadius: BorderRadius.circular(11),
-                          child: Image.asset("assets/images/AppLogo.png", fit: BoxFit.cover),
-                        ),
+                        decoration: BoxDecoration(borderRadius: BorderRadius.circular(11),
+                            color: Colors.white.withOpacity(0.05), border: Border.all(color: Colors.white12)),
+                        child: ClipRRect(borderRadius: BorderRadius.circular(11),
+                            child: Image.asset("assets/images/AppLogo.png", fit: BoxFit.cover)),
                       ),
                       const SizedBox(width: 10),
-                      Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          const Text("Əssələmu Aleykum",
-                              style: TextStyle(fontSize: 10, color: Colors.white38, fontFamily: 'MyFont2')),
-                          Text(_getCleanCityName(currentLocation?.name),
-                              style: const TextStyle(fontSize: 15, fontFamily: 'MyFont2',
-                                  fontWeight: FontWeight.bold, color: Colors.white)),
-                        ],
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(_lang.t('greeting'),
+                                style: const TextStyle(fontSize: 10, color: Colors.white38, fontFamily: 'MyFont2')),
+                            Text(_getCleanCityName(currentLocation?.name),
+                                overflow: TextOverflow.ellipsis,
+                                style: const TextStyle(fontSize: 15, fontFamily: 'MyFont2',
+                                    fontWeight: FontWeight.bold, color: Colors.white)),
+                          ],
+                        ),
                       ),
-                      const Spacer(),
+                      const SizedBox(width: 8),
                       _headerBtn(
                         icon: Icons.calendar_month_outlined,
                         onTap: () {
@@ -771,57 +695,88 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
                     decoration: BoxDecoration(
                       borderRadius: BorderRadius.circular(28),
                       gradient: const LinearGradient(
-                        begin: Alignment.topLeft,
-                        end: Alignment.bottomRight,
+                        begin: Alignment.topLeft, end: Alignment.bottomRight,
                         colors: [Color(0xFF1A3A4A), Color(0xFF0F2235)],
                       ),
                       border: Border.all(color: const Color(0xFF4ECDC4).withOpacity(0.18)),
-                      boxShadow: [
-                        BoxShadow(
-                            color: const Color(0xFF4ECDC4).withOpacity(0.06),
-                            blurRadius: 30, spreadRadius: 2),
-                      ],
+                      boxShadow: [BoxShadow(color: const Color(0xFF4ECDC4).withOpacity(0.06), blurRadius: 30, spreadRadius: 2)],
                     ),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
+                        // Tarih bloku - miladi+gün üstte, hicri altta
                         Row(
+                          crossAxisAlignment: CrossAxisAlignment.center,
                           children: [
+                            // Miladi tarix ikonu
                             Container(
-                              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                              width: 28, height: 28,
                               decoration: BoxDecoration(
                                 color: Colors.white.withOpacity(0.06),
-                                borderRadius: BorderRadius.circular(20),
-                                border: Border.all(color: Colors.white12),
+                                borderRadius: BorderRadius.circular(8),
                               ),
-                              child: Text(
-                                "${now.day} ${months[now.month]} ${now.year}  ·  ${days[now.weekday]}",
-                                style: const TextStyle(fontFamily: 'MyFont2',
-                                    fontSize: 11, color: Colors.white54, letterSpacing: 0.2),
+                              child: const Icon(Icons.calendar_month,
+                                  color: Colors.white38, size: 13),
+                            ),
+                            const SizedBox(width: 8),
+                            // Miladi tarix + gün adı
+                            Expanded(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    "${now.day} ${_getLocalizedMonth(now.month)} ${now.year}",
+                                    style: const TextStyle(
+                                      fontFamily: 'MyFont2', fontSize: 12,
+                                      color: Colors.white70, fontWeight: FontWeight.w500,
+                                    ),
+                                  ),
+                                  const SizedBox(height: 1),
+                                  Text(
+                                    _getLocalizedDay(now.weekday),
+                                    style: const TextStyle(
+                                      fontFamily: 'MyFont2', fontSize: 11,
+                                      color: Colors.white38,
+                                    ),
+                                  ),
+                                ],
                               ),
                             ),
-                            const Spacer(),
-                            if (_getHijriDateText().isNotEmpty)
-                              Container(
-                                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-                                decoration: BoxDecoration(
-                                  color: const Color(0xFFFFD700).withOpacity(0.08),
-                                  borderRadius: BorderRadius.circular(20),
-                                  border: Border.all(color: const Color(0xFFFFD700).withOpacity(0.2)),
-                                ),
-                                child: Text(
-                                  _getHijriDateText(),
-                                  style: const TextStyle(fontFamily: 'MyFont2',
-                                      fontSize: 11, color: Color(0xFFFFD700), letterSpacing: 0.2),
-                                ),
+                            // Hicri tarix sağda
+                            Container(
+                              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                              decoration: BoxDecoration(
+                                color: const Color(0xFFFFD700).withOpacity(0.08),
+                                borderRadius: BorderRadius.circular(12),
+                                border: Border.all(
+                                    color: const Color(0xFFFFD700).withOpacity(0.22)),
                               ),
+                              child: Row(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  const Icon(Icons.brightness_1,
+                                      color: Color(0xFFFFD700), size: 11),
+                                  const SizedBox(width: 5),
+                                  Text(
+                                    _getHijriDateText(),
+                                    style: const TextStyle(
+                                      fontFamily: 'MyFont2', fontSize: 11,
+                                      color: Color(0xFFFFD700),
+                                      fontWeight: FontWeight.w500,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
                           ],
                         ),
 
                         const SizedBox(height: 20),
 
                         Text(
-                          sonrakiVakitAdi != null ? "${sonrakiVakitAdi!} vaxtına" : "Yüklənir...",
+                          sonrakiVakitAdi != null
+                              ? "${sonrakiVakitAdi!} ${_lang.t('time_until')}"
+                              : _lang.t('loading'),
                           style: const TextStyle(fontFamily: 'MyFont2',
                               fontSize: 13, color: Color(0xFF4ECDC4), letterSpacing: 0.4),
                         ),
@@ -837,12 +792,9 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
                                 "${(kalanSure!.inMinutes % 60).toString().padLeft(2, '0')}:"
                                 "${(kalanSure!.inSeconds % 60).toString().padLeft(2, '0')}",
                             style: const TextStyle(
-                              fontFamily: 'MyFont2',
-                              fontSize: 46,
-                              fontWeight: FontWeight.w700,
-                              color: Colors.white,
-                              letterSpacing: 3,
-                              height: 1.1,
+                              fontFamily: 'MyFont2', fontSize: 46,
+                              fontWeight: FontWeight.w700, color: Colors.white,
+                              letterSpacing: 3, height: 1.1,
                             ),
                           ),
                         ),
@@ -860,8 +812,8 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
                   padding: const EdgeInsets.symmetric(horizontal: 20),
                   child: Row(
                     children: [
-                      const Text("Namaz vaxtları",
-                          style: TextStyle(fontFamily: 'MyFont2', fontSize: 12,
+                      Text(_lang.t('prayer_times'),
+                          style: const TextStyle(fontFamily: 'MyFont2', fontSize: 12,
                               color: Colors.white38, letterSpacing: 0.6)),
                       const SizedBox(width: 10),
                       Expanded(child: Container(height: 1, color: Colors.white.withOpacity(0.06))),
@@ -874,8 +826,7 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
                 loading
                     ? const Expanded(
                   child: Center(
-                    child: CircularProgressIndicator(
-                        color: Color(0xFF4ECDC4), strokeWidth: 2),
+                    child: CircularProgressIndicator(color: Color(0xFF4ECDC4), strokeWidth: 2),
                   ),
                 )
                     : Expanded(
@@ -885,12 +836,12 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
                       padding: const EdgeInsets.only(bottom: 24),
                       children: [
                         if (prayerTimes != null) ...[
-                          _prayerRow("İmsak",   prayerTimes!.data.timings.imsak),
-                          _prayerRow("Günəş",   prayerTimes!.data.timings.sunrise),
-                          _prayerRow("Günorta", prayerTimes!.data.timings.dhuhr),
-                          _prayerRow("Əsr",     prayerTimes!.data.timings.asr),
-                          _prayerRow("Axşam",   prayerTimes!.data.timings.maghrib),
-                          _prayerRow("İşa",     prayerTimes!.data.timings.isha),
+                          _prayerRow(_lang.t('imsak'),   prayerTimes!.data.timings.imsak),
+                          _prayerRow(_lang.t('sunrise'),  prayerTimes!.data.timings.sunrise),
+                          _prayerRow(_lang.t('dhuhr'),    prayerTimes!.data.timings.dhuhr),
+                          _prayerRow(_lang.t('asr'),      prayerTimes!.data.timings.asr),
+                          _prayerRow(_lang.t('maghrib'),  prayerTimes!.data.timings.maghrib),
+                          _prayerRow(_lang.t('isha'),     prayerTimes!.data.timings.isha),
                         ],
                       ],
                     ),

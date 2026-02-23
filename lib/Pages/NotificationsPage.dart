@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:namazvaktim/services/language_service.dart';
 import '../services/ezan_service.dart';
 
 class NotificationsPage extends StatefulWidget {
@@ -26,16 +27,27 @@ class _NotificationsPageState extends State<NotificationsPage> {
 
   String selectedEzan = 'default';
 
-  final List<Map<String, String>> ezanSounds = [
-    {'id': 'default', 'name': 'Varsayılan Əzan'},
-    {'id': 'notification', 'name': 'Sadəcə Bildiriş Səsi'},
-  ];
+  final LanguageService _lang = LanguageService();
 
   @override
   void initState() {
     super.initState();
+    _lang.addListener(_onLangChanged);
     _loadSettings();
   }
+
+  @override
+  void dispose() {
+    _lang.removeListener(_onLangChanged);
+    super.dispose();
+  }
+
+  void _onLangChanged() => setState(() {});
+
+  List<Map<String, String>> get ezanSounds => [
+    {'id': 'default', 'name': _lang.t('default_ezan')},
+    {'id': 'notification', 'name': _lang.t('notification_only')},
+  ];
 
   Future<void> _loadSettings() async {
     final prefs = await SharedPreferences.getInstance();
@@ -75,7 +87,8 @@ class _NotificationsPageState extends State<NotificationsPage> {
     if (mounted) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: const Text('Ayarlar saxlanıldı', style: TextStyle(fontFamily: 'MyFont2')),
+          content: Text(_lang.t('settings_saved'),
+              style: const TextStyle(fontFamily: 'MyFont2')),
           backgroundColor: const Color(0xFF1A3A4A),
           behavior: SnackBarBehavior.floating,
           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
@@ -101,9 +114,7 @@ class _NotificationsPageState extends State<NotificationsPage> {
         color: Colors.white.withOpacity(0.04),
         borderRadius: BorderRadius.circular(18),
         border: Border.all(
-          color: isNotificationEnabled
-              ? iconColor.withOpacity(0.3)
-              : Colors.white.withOpacity(0.07),
+          color: isNotificationEnabled ? iconColor.withOpacity(0.3) : Colors.white.withOpacity(0.07),
           width: isNotificationEnabled ? 1.2 : 1,
         ),
       ),
@@ -117,15 +128,12 @@ class _NotificationsPageState extends State<NotificationsPage> {
                   color: iconColor.withOpacity(isNotificationEnabled ? 0.18 : 0.07),
                   borderRadius: BorderRadius.circular(11),
                 ),
-                child: Icon(icon,
-                    color: isNotificationEnabled ? iconColor : Colors.white24, size: 20),
+                child: Icon(icon, color: isNotificationEnabled ? iconColor : Colors.white24, size: 20),
               ),
               const SizedBox(width: 12),
-              Text(title,
-                  style: TextStyle(
-                      fontFamily: 'MyFont2', fontSize: 15,
-                      fontWeight: FontWeight.w600,
-                      color: isNotificationEnabled ? Colors.white : Colors.white38)),
+              Text(title, style: TextStyle(fontFamily: 'MyFont2', fontSize: 15,
+                  fontWeight: FontWeight.w600,
+                  color: isNotificationEnabled ? Colors.white : Colors.white38)),
               const Spacer(),
             ],
           ),
@@ -134,10 +142,10 @@ class _NotificationsPageState extends State<NotificationsPage> {
           const SizedBox(height: 10),
           Row(
             children: [
-              Icon(Icons.notifications_outlined, size: 16, color: Colors.white38),
+              const Icon(Icons.notifications_outlined, size: 16, color: Colors.white38),
               const SizedBox(width: 8),
-              const Text('Bildiriş',
-                  style: TextStyle(fontFamily: 'MyFont2', fontSize: 13, color: Colors.white54)),
+              Text(_lang.t('notification'),
+                  style: const TextStyle(fontFamily: 'MyFont2', fontSize: 13, color: Colors.white54)),
               const Spacer(),
               _darkSwitch(
                 value: isNotificationEnabled,
@@ -152,9 +160,8 @@ class _NotificationsPageState extends State<NotificationsPage> {
               Icon(Icons.volume_up_outlined, size: 16,
                   color: isNotificationEnabled ? Colors.white38 : Colors.white12),
               const SizedBox(width: 8),
-              Text('Əzan Səsi',
-                  style: TextStyle(fontFamily: 'MyFont2', fontSize: 13,
-                      color: isNotificationEnabled ? Colors.white54 : Colors.white24)),
+              Text(_lang.t('ezan_sound'), style: TextStyle(fontFamily: 'MyFont2', fontSize: 13,
+                  color: isNotificationEnabled ? Colors.white54 : Colors.white24)),
               const Spacer(),
               _darkSwitch(
                 value: isEzanEnabled,
@@ -194,22 +201,15 @@ class _NotificationsPageState extends State<NotificationsPage> {
       backgroundColor: const Color(0xFF080E1A),
       body: Stack(
         children: [
-          Positioned(
-            top: -60, right: -40,
-            child: Container(
-              width: 220, height: 220,
-              decoration: BoxDecoration(
-                shape: BoxShape.circle,
-                gradient: RadialGradient(
-                  colors: [const Color(0xFF4ECDC4).withOpacity(0.08), Colors.transparent],
-                ),
-              ),
+          Positioned(top: -60, right: -40,
+            child: Container(width: 220, height: 220,
+              decoration: BoxDecoration(shape: BoxShape.circle,
+                  gradient: RadialGradient(colors: [const Color(0xFF4ECDC4).withOpacity(0.08), Colors.transparent])),
             ),
           ),
           SafeArea(
             child: Column(
               children: [
-
                 Padding(
                   padding: const EdgeInsets.fromLTRB(4, 8, 20, 0),
                   child: Row(
@@ -218,8 +218,8 @@ class _NotificationsPageState extends State<NotificationsPage> {
                         onPressed: () => Navigator.pop(context),
                         icon: const Icon(Icons.arrow_back_ios_rounded, color: Colors.white70, size: 20),
                       ),
-                      const Text("Bildiriş Ayarları",
-                          style: TextStyle(fontSize: 18, fontFamily: 'MyFont2',
+                      Text(_lang.t('notification_settings'),
+                          style: const TextStyle(fontSize: 18, fontFamily: 'MyFont2',
                               fontWeight: FontWeight.bold, color: Colors.white)),
                     ],
                   ),
@@ -230,7 +230,6 @@ class _NotificationsPageState extends State<NotificationsPage> {
                   child: ListView(
                     padding: const EdgeInsets.symmetric(horizontal: 20),
                     children: [
-
                       Container(
                         margin: const EdgeInsets.only(bottom: 16),
                         padding: const EdgeInsets.all(18),
@@ -252,12 +251,11 @@ class _NotificationsPageState extends State<NotificationsPage> {
                                   color: const Color(0xFF4ECDC4).withOpacity(0.15),
                                   borderRadius: BorderRadius.circular(10),
                                 ),
-                                child: const Icon(Icons.volume_up_rounded,
-                                    color: Color(0xFF4ECDC4), size: 20),
+                                child: const Icon(Icons.volume_up_rounded, color: Color(0xFF4ECDC4), size: 20),
                               ),
                               const SizedBox(width: 12),
-                              const Text("Əzan Səsi Seçin",
-                                  style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold,
+                              Text(_lang.t('select_ezan'),
+                                  style: const TextStyle(fontSize: 15, fontWeight: FontWeight.bold,
                                       fontFamily: 'MyFont2', color: Colors.white)),
                             ]),
                             const SizedBox(height: 14),
@@ -269,29 +267,18 @@ class _NotificationsPageState extends State<NotificationsPage> {
                                   margin: const EdgeInsets.only(bottom: 8),
                                   padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
                                   decoration: BoxDecoration(
-                                    color: isSelected
-                                        ? const Color(0xFF4ECDC4).withOpacity(0.12)
-                                        : Colors.white.withOpacity(0.04),
+                                    color: isSelected ? const Color(0xFF4ECDC4).withOpacity(0.12) : Colors.white.withOpacity(0.04),
                                     borderRadius: BorderRadius.circular(12),
                                     border: Border.all(
-                                      color: isSelected
-                                          ? const Color(0xFF4ECDC4).withOpacity(0.4)
-                                          : Colors.white12,
-                                    ),
+                                        color: isSelected ? const Color(0xFF4ECDC4).withOpacity(0.4) : Colors.white12),
                                   ),
                                   child: Row(
                                     children: [
-                                      Icon(
-                                        isSelected ? Icons.radio_button_checked_rounded
-                                            : Icons.radio_button_off_rounded,
-                                        color: isSelected ? const Color(0xFF4ECDC4) : Colors.white24,
-                                        size: 18,
-                                      ),
+                                      Icon(isSelected ? Icons.radio_button_checked_rounded : Icons.radio_button_off_rounded,
+                                          color: isSelected ? const Color(0xFF4ECDC4) : Colors.white24, size: 18),
                                       const SizedBox(width: 10),
-                                      Text(sound['name']!,
-                                          style: TextStyle(
-                                              fontFamily: 'MyFont2', fontSize: 13,
-                                              color: isSelected ? Colors.white : Colors.white54)),
+                                      Text(sound['name']!, style: TextStyle(fontFamily: 'MyFont2', fontSize: 13,
+                                          color: isSelected ? Colors.white : Colors.white54)),
                                     ],
                                   ),
                                 ),
@@ -307,8 +294,8 @@ class _NotificationsPageState extends State<NotificationsPage> {
                                         await EzanService.playEzan();
                                         if (mounted) {
                                           ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-                                            content: const Text('Əzan səsi çalınır...',
-                                                style: TextStyle(fontFamily: 'MyFont2')),
+                                            content: Text(_lang.t('ezan_playing'),
+                                                style: const TextStyle(fontFamily: 'MyFont2')),
                                             backgroundColor: const Color(0xFF1A3A4A),
                                             behavior: SnackBarBehavior.floating,
                                             shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
@@ -323,13 +310,14 @@ class _NotificationsPageState extends State<NotificationsPage> {
                                         borderRadius: BorderRadius.circular(12),
                                         border: Border.all(color: const Color(0xFF4ECDC4).withOpacity(0.3)),
                                       ),
-                                      child: const Row(
+                                      child: Row(
                                         mainAxisAlignment: MainAxisAlignment.center,
                                         children: [
-                                          Icon(Icons.play_arrow_rounded, color: Color(0xFF4ECDC4), size: 20),
-                                          SizedBox(width: 6),
-                                          Text('Dinlə', style: TextStyle(fontFamily: 'MyFont2',
-                                              color: Color(0xFF4ECDC4), fontSize: 13)),
+                                          const Icon(Icons.play_arrow_rounded, color: Color(0xFF4ECDC4), size: 20),
+                                          const SizedBox(width: 6),
+                                          Text(_lang.t('listen'),
+                                              style: const TextStyle(fontFamily: 'MyFont2',
+                                                  color: Color(0xFF4ECDC4), fontSize: 13)),
                                         ],
                                       ),
                                     ),
@@ -343,8 +331,8 @@ class _NotificationsPageState extends State<NotificationsPage> {
                                         await EzanService.stopEzan();
                                         if (mounted) {
                                           ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-                                            content: const Text('Dayandırıldı',
-                                                style: TextStyle(fontFamily: 'MyFont2')),
+                                            content: Text(_lang.t('stopped'),
+                                                style: const TextStyle(fontFamily: 'MyFont2')),
                                             backgroundColor: const Color(0xFF3A1A1A),
                                             behavior: SnackBarBehavior.floating,
                                             shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
@@ -359,13 +347,14 @@ class _NotificationsPageState extends State<NotificationsPage> {
                                         borderRadius: BorderRadius.circular(12),
                                         border: Border.all(color: const Color(0xFFFF6B6B).withOpacity(0.3)),
                                       ),
-                                      child: const Row(
+                                      child: Row(
                                         mainAxisAlignment: MainAxisAlignment.center,
                                         children: [
-                                          Icon(Icons.stop_rounded, color: Color(0xFFFF6B6B), size: 20),
-                                          SizedBox(width: 6),
-                                          Text('Dayandır', style: TextStyle(fontFamily: 'MyFont2',
-                                              color: Color(0xFFFF6B6B), fontSize: 13)),
+                                          const Icon(Icons.stop_rounded, color: Color(0xFFFF6B6B), size: 20),
+                                          const SizedBox(width: 6),
+                                          Text(_lang.t('stop'),
+                                              style: const TextStyle(fontFamily: 'MyFont2',
+                                                  color: Color(0xFFFF6B6B), fontSize: 13)),
                                         ],
                                       ),
                                     ),
@@ -380,45 +369,45 @@ class _NotificationsPageState extends State<NotificationsPage> {
                       Padding(
                         padding: const EdgeInsets.only(bottom: 12),
                         child: Row(children: [
-                          const Text("Namaz Vaxtları",
-                              style: TextStyle(fontFamily: 'MyFont2', fontSize: 12,
+                          Text(_lang.t('prayer_times_section'),
+                              style: const TextStyle(fontFamily: 'MyFont2', fontSize: 12,
                                   color: Colors.white38, letterSpacing: 0.6)),
                           const SizedBox(width: 10),
                           Expanded(child: Container(height: 1, color: Colors.white.withOpacity(0.06))),
                         ]),
                       ),
 
-                      _notificationCard(title: 'İmsak', icon: Icons.nights_stay_rounded,
+                      _notificationCard(title: _lang.t('imsak'), icon: Icons.nights_stay_rounded,
                           iconColor: const Color(0xFF7B8EBF),
                           isNotificationEnabled: imsakNotification, isEzanEnabled: imsakEzan,
                           onNotificationChanged: (v) { setState(() { imsakNotification = v; if (!v) imsakEzan = false; }); },
                           onEzanChanged: (v) => setState(() => imsakEzan = v)),
 
-                      _notificationCard(title: 'Günəş', icon: Icons.wb_twilight_rounded,
+                      _notificationCard(title: _lang.t('sunrise'), icon: Icons.wb_twilight_rounded,
                           iconColor: const Color(0xFFFFB347),
                           isNotificationEnabled: sunriseNotification, isEzanEnabled: sunriseEzan,
                           onNotificationChanged: (v) { setState(() { sunriseNotification = v; if (!v) sunriseEzan = false; }); },
                           onEzanChanged: (v) => setState(() => sunriseEzan = v)),
 
-                      _notificationCard(title: 'Günorta', icon: Icons.wb_sunny,
+                      _notificationCard(title: _lang.t('dhuhr'), icon: Icons.wb_sunny,
                           iconColor: const Color(0xFFFFD700),
                           isNotificationEnabled: dhuhrNotification, isEzanEnabled: dhuhrEzan,
                           onNotificationChanged: (v) { setState(() { dhuhrNotification = v; if (!v) dhuhrEzan = false; }); },
                           onEzanChanged: (v) => setState(() => dhuhrEzan = v)),
 
-                      _notificationCard(title: 'Əsr', icon: Icons.cloud_queue_rounded,
+                      _notificationCard(title: _lang.t('asr'), icon: Icons.cloud_queue_rounded,
                           iconColor: const Color(0xFF80CBC4),
                           isNotificationEnabled: asrNotification, isEzanEnabled: asrEzan,
                           onNotificationChanged: (v) { setState(() { asrNotification = v; if (!v) asrEzan = false; }); },
                           onEzanChanged: (v) => setState(() => asrEzan = v)),
 
-                      _notificationCard(title: 'Axşam', icon: Icons.nightlight_round_sharp,
+                      _notificationCard(title: _lang.t('maghrib'), icon: Icons.nightlight_round_sharp,
                           iconColor: const Color(0xFFFF8A65),
                           isNotificationEnabled: maghribNotification, isEzanEnabled: maghribEzan,
                           onNotificationChanged: (v) { setState(() { maghribNotification = v; if (!v) maghribEzan = false; }); },
                           onEzanChanged: (v) => setState(() => maghribEzan = v)),
 
-                      _notificationCard(title: 'İşa', icon: Icons.nights_stay,
+                      _notificationCard(title: _lang.t('isha'), icon: Icons.nights_stay,
                           iconColor: const Color(0xFFB39DDB),
                           isNotificationEnabled: ishaNotification, isEzanEnabled: ishaEzan,
                           onNotificationChanged: (v) { setState(() { ishaNotification = v; if (!v) ishaEzan = false; }); },
@@ -444,14 +433,13 @@ class _NotificationsPageState extends State<NotificationsPage> {
                                   borderRadius: BorderRadius.circular(14),
                                   border: Border.all(color: const Color(0xFF4ECDC4).withOpacity(0.3)),
                                 ),
-                                child: const Row(
+                                child: Row(
                                   mainAxisAlignment: MainAxisAlignment.center,
                                   children: [
-                                    Icon(Icons.notifications_active_outlined,
-                                        color: Color(0xFF4ECDC4), size: 18),
-                                    SizedBox(width: 8),
-                                    Text('Hamısını Aç',
-                                        style: TextStyle(fontFamily: 'MyFont2',
+                                    const Icon(Icons.notifications_active_outlined, color: Color(0xFF4ECDC4), size: 18),
+                                    const SizedBox(width: 8),
+                                    Text(_lang.t('enable_all'),
+                                        style: const TextStyle(fontFamily: 'MyFont2',
                                             color: Color(0xFF4ECDC4), fontSize: 13)),
                                   ],
                                 ),
@@ -477,14 +465,13 @@ class _NotificationsPageState extends State<NotificationsPage> {
                                   borderRadius: BorderRadius.circular(14),
                                   border: Border.all(color: const Color(0xFFFF6B6B).withOpacity(0.3)),
                                 ),
-                                child: const Row(
+                                child: Row(
                                   mainAxisAlignment: MainAxisAlignment.center,
                                   children: [
-                                    Icon(Icons.notifications_off_outlined,
-                                        color: Color(0xFFFF6B6B), size: 18),
-                                    SizedBox(width: 8),
-                                    Text('Hamısını Bağla',
-                                        style: TextStyle(fontFamily: 'MyFont2',
+                                    const Icon(Icons.notifications_off_outlined, color: Color(0xFFFF6B6B), size: 18),
+                                    const SizedBox(width: 8),
+                                    Text(_lang.t('disable_all'),
+                                        style: const TextStyle(fontFamily: 'MyFont2',
                                             color: Color(0xFFFF6B6B), fontSize: 13)),
                                   ],
                                 ),

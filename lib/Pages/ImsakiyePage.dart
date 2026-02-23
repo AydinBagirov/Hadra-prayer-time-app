@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:path_provider/path_provider.dart';
+import 'package:namazvaktim/services/language_service.dart';
 import '../location/location_service.dart';
 
 class ImsakiyePage extends StatefulWidget {
@@ -19,12 +20,22 @@ class _ImsakiyePageState extends State<ImsakiyePage> {
   bool loading = true;
   List<DailyPrayerTime> monthlyPrayerTimes = [];
   final DateTime currentMonth = DateTime.now();
+  final LanguageService _lang = LanguageService();
 
   @override
   void initState() {
     super.initState();
+    _lang.addListener(_onLangChanged);
     _initializeLocation();
   }
+
+  @override
+  void dispose() {
+    _lang.removeListener(_onLangChanged);
+    super.dispose();
+  }
+
+  void _onLangChanged() => setState(() {});
 
   Future<void> _initializeLocation() async {
     if (!mounted) return;
@@ -135,25 +146,22 @@ class _ImsakiyePageState extends State<ImsakiyePage> {
 
   @override
   Widget build(BuildContext context) {
-    final months = ["", "Yanvar", "Fevral", "Mart", "Aprel", "May", "İyun",
-      "İyul", "Avqust", "Sentyabr", "Oktyabr", "Noyabr", "Dekabr"];
+    // ✅ Ay adı artık dile göre geliyor
+    final localizedMonth = _lang.t('month_${currentMonth.month}');
 
     return Scaffold(
       backgroundColor: const Color(0xFF080E1A),
       body: Stack(
         children: [
-          Positioned(
-            top: -60, right: -40,
+          Positioned(top: -60, right: -40,
             child: Container(width: 200, height: 200,
               decoration: BoxDecoration(shape: BoxShape.circle,
-                  gradient: RadialGradient(
-                      colors: [const Color(0xFF4ECDC4).withOpacity(0.08), Colors.transparent])),
+                  gradient: RadialGradient(colors: [const Color(0xFF4ECDC4).withOpacity(0.08), Colors.transparent])),
             ),
           ),
           SafeArea(
             child: Column(
               children: [
-
                 Padding(
                   padding: const EdgeInsets.fromLTRB(4, 8, 20, 0),
                   child: Row(
@@ -165,10 +173,11 @@ class _ImsakiyePageState extends State<ImsakiyePage> {
                       Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          const Text("İmsakiyyə",
-                              style: TextStyle(fontSize: 18, fontFamily: 'MyFont2',
+                          Text(_lang.t('imsakiye'),
+                              style: const TextStyle(fontSize: 18, fontFamily: 'MyFont2',
                                   fontWeight: FontWeight.bold, color: Colors.white)),
-                          Text("${months[currentMonth.month]} ${currentMonth.year}",
+                          // ✅ Dile göre ay adı + yıl
+                          Text("$localizedMonth ${currentMonth.year}",
                               style: const TextStyle(fontSize: 12, fontFamily: 'MyFont2',
                                   color: Color(0xFF4ECDC4))),
                         ],
@@ -195,11 +204,10 @@ class _ImsakiyePageState extends State<ImsakiyePage> {
 
                 Expanded(
                   child: loading
-                      ? const Center(child: CircularProgressIndicator(
-                      color: Color(0xFF4ECDC4), strokeWidth: 2))
+                      ? const Center(child: CircularProgressIndicator(color: Color(0xFF4ECDC4), strokeWidth: 2))
                       : monthlyPrayerTimes.isEmpty
-                      ? const Center(child: Text('Məlumat tapılmadı',
-                      style: TextStyle(fontFamily: 'MyFont2', color: Colors.white54)))
+                      ? Center(child: Text(_lang.t('loading'),
+                      style: const TextStyle(fontFamily: 'MyFont2', color: Colors.white54)))
                       : ListView.builder(
                     padding: const EdgeInsets.symmetric(horizontal: 20),
                     itemCount: monthlyPrayerTimes.length,
@@ -215,14 +223,10 @@ class _ImsakiyePageState extends State<ImsakiyePage> {
                         margin: const EdgeInsets.only(bottom: 6),
                         padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
                         decoration: BoxDecoration(
-                          color: isToday
-                              ? const Color(0xFF4ECDC4).withOpacity(0.10)
-                              : Colors.white.withOpacity(0.03),
+                          color: isToday ? const Color(0xFF4ECDC4).withOpacity(0.10) : Colors.white.withOpacity(0.03),
                           borderRadius: BorderRadius.circular(14),
                           border: Border.all(
-                            color: isToday
-                                ? const Color(0xFF4ECDC4).withOpacity(0.4)
-                                : Colors.white.withOpacity(0.06),
+                            color: isToday ? const Color(0xFF4ECDC4).withOpacity(0.4) : Colors.white.withOpacity(0.06),
                             width: isToday ? 1.2 : 1,
                           ),
                         ),
@@ -230,14 +234,10 @@ class _ImsakiyePageState extends State<ImsakiyePage> {
                           children: [
                             SizedBox(
                               width: 36,
-                              child: Text(
-                                '${dayTime.date.day}',
-                                style: TextStyle(
-                                  fontFamily: 'MyFont2',
-                                  fontSize: 14,
-                                  fontWeight: isToday ? FontWeight.bold : FontWeight.w500,
-                                  color: isToday ? const Color(0xFF4ECDC4) : Colors.white54,
-                                ),
+                              child: Text('${dayTime.date.day}',
+                                style: TextStyle(fontFamily: 'MyFont2', fontSize: 14,
+                                    fontWeight: isToday ? FontWeight.bold : FontWeight.w500,
+                                    color: isToday ? const Color(0xFF4ECDC4) : Colors.white54),
                               ),
                             ),
                             ..._timeCell(dayTime.imsak, isToday),
@@ -261,7 +261,14 @@ class _ImsakiyePageState extends State<ImsakiyePage> {
   }
 
   List<Widget> _headerLabels() {
-    final labels = ['İmsak', 'Günəş', 'Günorta', 'Əsr', 'Axşam', 'İşa'];
+    final labels = [
+      _lang.t('imsak'),
+      _lang.t('sunrise'),
+      _lang.t('dhuhr'),
+      _lang.t('asr'),
+      _lang.t('maghrib'),
+      _lang.t('isha'),
+    ];
     return labels.map((l) => Expanded(
       child: Text(l, textAlign: TextAlign.center,
           style: const TextStyle(fontFamily: 'MyFont2', fontSize: 10,
@@ -273,8 +280,7 @@ class _ImsakiyePageState extends State<ImsakiyePage> {
     return [
       Expanded(
         child: Text(time, textAlign: TextAlign.center,
-            style: TextStyle(
-                fontFamily: 'MyFont2', fontSize: 11,
+            style: TextStyle(fontFamily: 'MyFont2', fontSize: 11,
                 fontWeight: isToday ? FontWeight.bold : FontWeight.w400,
                 color: isToday ? Colors.white : Colors.white54)),
       ),

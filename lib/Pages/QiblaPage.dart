@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_compass/flutter_compass.dart';
 import 'package:geolocator/geolocator.dart';
+import 'package:namazvaktim/services/language_service.dart';
 import '../location/location_service.dart';
 
 class QiblaPage extends StatefulWidget {
@@ -30,19 +31,21 @@ class _QiblaPageState extends State<QiblaPage> with TickerProviderStateMixin {
   late Animation<double> _pulseAnimation;
   late Animation<double> _fadeAnimation;
 
+  final LanguageService _lang = LanguageService();
+
   @override
   void initState() {
     super.initState();
+    _lang.addListener(_onLangChanged);
+
     SystemChrome.setSystemUIOverlayStyle(const SystemUiOverlayStyle(
       statusBarColor: Colors.transparent,
       statusBarIconBrightness: Brightness.light,
     ));
 
-    _pulseController = AnimationController(
-        vsync: this, duration: const Duration(seconds: 2))
+    _pulseController = AnimationController(vsync: this, duration: const Duration(seconds: 2))
       ..repeat(reverse: true);
-    _fadeController = AnimationController(
-        vsync: this, duration: const Duration(milliseconds: 800));
+    _fadeController = AnimationController(vsync: this, duration: const Duration(milliseconds: 800));
 
     _pulseAnimation = Tween<double>(begin: 0.95, end: 1.05).animate(
         CurvedAnimation(parent: _pulseController, curve: Curves.easeInOut));
@@ -52,8 +55,11 @@ class _QiblaPageState extends State<QiblaPage> with TickerProviderStateMixin {
     _startCompass();
   }
 
+  void _onLangChanged() => setState(() {});
+
   @override
   void dispose() {
+    _lang.removeListener(_onLangChanged);
     _pulseController.dispose();
     _fadeController.dispose();
     super.dispose();
@@ -74,7 +80,7 @@ class _QiblaPageState extends State<QiblaPage> with TickerProviderStateMixin {
       bool serviceEnabled = await Geolocator.isLocationServiceEnabled();
       if (!serviceEnabled) {
         setState(() {
-          _errorMessage = 'Mövqe xidməti bağlıdır';
+          _errorMessage = _lang.t('location_service_off');
           _loadingLocation = false;
         });
         return;
@@ -84,18 +90,16 @@ class _QiblaPageState extends State<QiblaPage> with TickerProviderStateMixin {
       if (permission == LocationPermission.denied) {
         permission = await Geolocator.requestPermission();
       }
-      if (permission == LocationPermission.denied ||
-          permission == LocationPermission.deniedForever) {
+      if (permission == LocationPermission.denied || permission == LocationPermission.deniedForever) {
         setState(() {
-          _errorMessage = 'Mövqe icazəsi verilmədi';
+          _errorMessage = _lang.t('location_permission_denied');
           _loadingLocation = false;
         });
         return;
       }
 
       Position pos = await Geolocator.getCurrentPosition(
-          desiredAccuracy: LocationAccuracy.high,
-          timeLimit: const Duration(seconds: 10));
+          desiredAccuracy: LocationAccuracy.high, timeLimit: const Duration(seconds: 10));
       _setLocation(pos.latitude, pos.longitude, '');
     } catch (e) {
       _setLocation(40.4093, 49.8671, 'Bakı');
@@ -122,10 +126,8 @@ class _QiblaPageState extends State<QiblaPage> with TickerProviderStateMixin {
     final double kabeLng = _kabeLongitude * math.pi / 180;
 
     final double dLng = kabeLng - lngRad;
-
     final double y = math.sin(dLng);
-    final double x = math.cos(latRad) * math.tan(kabeLat) -
-        math.sin(latRad) * math.cos(dLng);
+    final double x = math.cos(latRad) * math.tan(kabeLat) - math.sin(latRad) * math.cos(dLng);
 
     double angle = math.atan2(y, x) * 180 / math.pi;
     return (angle + 360) % 360;
@@ -134,15 +136,10 @@ class _QiblaPageState extends State<QiblaPage> with TickerProviderStateMixin {
   void _startCompass() {
     FlutterCompass.events?.listen((CompassEvent event) {
       if (event.heading != null && mounted) {
-        setState(() {
-          _compassHeading = event.heading!;
-          _compassAvailable = true;
-        });
+        setState(() { _compassHeading = event.heading!; _compassAvailable = true; });
       }
     }, onError: (e) {
-      if (mounted) {
-        setState(() => _compassAvailable = false);
-      }
+      if (mounted) setState(() => _compassAvailable = false);
     });
   }
 
@@ -160,6 +157,17 @@ class _QiblaPageState extends State<QiblaPage> with TickerProviderStateMixin {
 
   bool get _isPointingQibla => _qiblaDeviation < 5;
 
+  String _getDirectionLabel(double heading) {
+    if (heading < 22.5 || heading >= 337.5) return _lang.t('north') == 'Ş' ? 'Şimal' : 'North';
+    if (heading < 67.5) return 'NE';
+    if (heading < 112.5) return _lang.t('north') == 'Ş' ? 'Şərq' : 'East';
+    if (heading < 157.5) return 'SE';
+    if (heading < 202.5) return _lang.t('south') == 'C' ? 'Cənub' : 'South';
+    if (heading < 247.5) return 'SW';
+    if (heading < 292.5) return _lang.t('west') == 'Q' ? 'Qərb' : 'West';
+    return 'NW';
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -170,36 +178,23 @@ class _QiblaPageState extends State<QiblaPage> with TickerProviderStateMixin {
             child: Container(
               decoration: const BoxDecoration(
                 gradient: LinearGradient(
-                  begin: Alignment.topLeft,
-                  end: Alignment.bottomRight,
+                  begin: Alignment.topLeft, end: Alignment.bottomRight,
                   colors: [Color(0xFF0D1B2A), Color(0xFF080E1A), Color(0xFF0A1628)],
                 ),
               ),
             ),
           ),
 
-          Positioned(
-            top: -80, right: -60,
-            child: Container(
-              width: 280, height: 280,
-              decoration: BoxDecoration(
-                shape: BoxShape.circle,
-                gradient: RadialGradient(
-                  colors: [const Color(0xFFFFD700).withOpacity(0.07), Colors.transparent],
-                ),
-              ),
+          Positioned(top: -80, right: -60,
+            child: Container(width: 280, height: 280,
+              decoration: BoxDecoration(shape: BoxShape.circle,
+                  gradient: RadialGradient(colors: [const Color(0xFFFFD700).withOpacity(0.07), Colors.transparent])),
             ),
           ),
-          Positioned(
-            bottom: 60, left: -80,
-            child: Container(
-              width: 200, height: 200,
-              decoration: BoxDecoration(
-                shape: BoxShape.circle,
-                gradient: RadialGradient(
-                  colors: [const Color(0xFF4ECDC4).withOpacity(0.06), Colors.transparent],
-                ),
-              ),
+          Positioned(bottom: 60, left: -80,
+            child: Container(width: 200, height: 200,
+              decoration: BoxDecoration(shape: BoxShape.circle,
+                  gradient: RadialGradient(colors: [const Color(0xFF4ECDC4).withOpacity(0.06), Colors.transparent])),
             ),
           ),
 
@@ -210,9 +205,8 @@ class _QiblaPageState extends State<QiblaPage> with TickerProviderStateMixin {
                   padding: const EdgeInsets.fromLTRB(20, 16, 20, 0),
                   child: Row(
                     children: [
-                      const Text("Qiblə",
-                          style: TextStyle(
-                              fontSize: 22, fontFamily: 'MyFont2',
+                      Text(_lang.t('qibla'),
+                          style: const TextStyle(fontSize: 22, fontFamily: 'MyFont2',
                               fontWeight: FontWeight.bold, color: Colors.white)),
                       const Spacer(),
                       if (_locationName.isNotEmpty)
@@ -226,13 +220,10 @@ class _QiblaPageState extends State<QiblaPage> with TickerProviderStateMixin {
                           child: Row(
                             mainAxisSize: MainAxisSize.min,
                             children: [
-                              const Icon(Icons.location_on_rounded,
-                                  color: Color(0xFF4ECDC4), size: 14),
+                              const Icon(Icons.location_on_rounded, color: Color(0xFF4ECDC4), size: 14),
                               const SizedBox(width: 4),
                               Text(_locationName,
-                                  style: const TextStyle(
-                                      fontFamily: 'MyFont2', fontSize: 12,
-                                      color: Colors.white70)),
+                                  style: const TextStyle(fontFamily: 'MyFont2', fontSize: 12, color: Colors.white70)),
                             ],
                           ),
                         ),
@@ -245,12 +236,11 @@ class _QiblaPageState extends State<QiblaPage> with TickerProviderStateMixin {
                 Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 20),
                   child: Row(children: [
-                    const Text("Kompas",
-                        style: TextStyle(fontFamily: 'MyFont2', fontSize: 12,
+                    Text(_lang.t('compass'),
+                        style: const TextStyle(fontFamily: 'MyFont2', fontSize: 12,
                             color: Colors.white38, letterSpacing: 0.6)),
                     const SizedBox(width: 10),
-                    Expanded(child: Container(
-                        height: 1, color: Colors.white.withOpacity(0.06))),
+                    Expanded(child: Container(height: 1, color: Colors.white.withOpacity(0.06))),
                   ]),
                 ),
 
@@ -263,10 +253,7 @@ class _QiblaPageState extends State<QiblaPage> with TickerProviderStateMixin {
                       ? _buildError()
                       : !_compassAvailable
                       ? _buildNoCompass()
-                      : FadeTransition(
-                    opacity: _fadeAnimation,
-                    child: _buildCompass(),
-                  ),
+                      : FadeTransition(opacity: _fadeAnimation, child: _buildCompass()),
                 ),
 
                 if (!_loadingLocation && _errorMessage == null && _compassAvailable)
@@ -282,14 +269,14 @@ class _QiblaPageState extends State<QiblaPage> with TickerProviderStateMixin {
   }
 
   Widget _buildLoading() {
-    return const Center(
+    return Center(
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          CircularProgressIndicator(color: Color(0xFF4ECDC4), strokeWidth: 2),
-          SizedBox(height: 16),
-          Text('Mövqe alınır...', style: TextStyle(
-              fontFamily: 'MyFont2', color: Colors.white54, fontSize: 14)),
+          const CircularProgressIndicator(color: Color(0xFF4ECDC4), strokeWidth: 2),
+          const SizedBox(height: 16),
+          Text(_lang.t('loading'),
+              style: const TextStyle(fontFamily: 'MyFont2', color: Colors.white54, fontSize: 14)),
         ],
       ),
     );
@@ -305,18 +292,14 @@ class _QiblaPageState extends State<QiblaPage> with TickerProviderStateMixin {
             Container(
               padding: const EdgeInsets.all(20),
               decoration: BoxDecoration(
-                color: const Color(0xFFFF6B6B).withOpacity(0.1),
-                shape: BoxShape.circle,
+                color: const Color(0xFFFF6B6B).withOpacity(0.1), shape: BoxShape.circle,
                 border: Border.all(color: const Color(0xFFFF6B6B).withOpacity(0.3)),
               ),
-              child: const Icon(Icons.location_off_rounded,
-                  color: Color(0xFFFF6B6B), size: 40),
+              child: const Icon(Icons.location_off_rounded, color: Color(0xFFFF6B6B), size: 40),
             ),
             const SizedBox(height: 20),
-            Text(_errorMessage ?? 'Xəta baş verdi',
-                textAlign: TextAlign.center,
-                style: const TextStyle(fontFamily: 'MyFont2',
-                    color: Colors.white70, fontSize: 15)),
+            Text(_errorMessage ?? _lang.t('error'), textAlign: TextAlign.center,
+                style: const TextStyle(fontFamily: 'MyFont2', color: Colors.white70, fontSize: 15)),
             const SizedBox(height: 20),
             GestureDetector(
               onTap: _initLocation,
@@ -327,9 +310,8 @@ class _QiblaPageState extends State<QiblaPage> with TickerProviderStateMixin {
                   borderRadius: BorderRadius.circular(14),
                   border: Border.all(color: const Color(0xFF4ECDC4).withOpacity(0.4)),
                 ),
-                child: const Text('Yenidən cəhd et',
-                    style: TextStyle(fontFamily: 'MyFont2',
-                        color: Color(0xFF4ECDC4), fontSize: 14)),
+                child: Text(_lang.t('retry'),
+                    style: const TextStyle(fontFamily: 'MyFont2', color: Color(0xFF4ECDC4), fontSize: 14)),
               ),
             ),
           ],
@@ -348,18 +330,14 @@ class _QiblaPageState extends State<QiblaPage> with TickerProviderStateMixin {
             Container(
               padding: const EdgeInsets.all(20),
               decoration: BoxDecoration(
-                color: const Color(0xFFFFD700).withOpacity(0.1),
-                shape: BoxShape.circle,
+                color: const Color(0xFFFFD700).withOpacity(0.1), shape: BoxShape.circle,
                 border: Border.all(color: const Color(0xFFFFD700).withOpacity(0.3)),
               ),
-              child: const Icon(Icons.explore_off_rounded,
-                  color: Color(0xFFFFD700), size: 40),
+              child: const Icon(Icons.explore_off_rounded, color: Color(0xFFFFD700), size: 40),
             ),
             const SizedBox(height: 20),
-            const Text('Bu cihazda kompas sensoru tapılmadı',
-                textAlign: TextAlign.center,
-                style: TextStyle(fontFamily: 'MyFont2',
-                    color: Colors.white70, fontSize: 15)),
+            Text(_lang.t('compass_not_found'), textAlign: TextAlign.center,
+                style: const TextStyle(fontFamily: 'MyFont2', color: Colors.white70, fontSize: 15)),
           ],
         ),
       ),
@@ -373,36 +351,27 @@ class _QiblaPageState extends State<QiblaPage> with TickerProviderStateMixin {
     return Column(
       children: [
         _buildDirectionIndicator(),
-
         const SizedBox(height: 16),
-
         Expanded(
           child: Center(
             child: Stack(
               alignment: Alignment.center,
               children: [
-                // Dış glow
                 if (isAligned)
                   AnimatedContainer(
                     duration: const Duration(milliseconds: 500),
                     width: 280, height: 280,
                     decoration: BoxDecoration(
                       shape: BoxShape.circle,
-                      boxShadow: [
-                        BoxShadow(
-                          color: const Color(0xFF4ECDC4).withOpacity(0.2),
-                          blurRadius: 40, spreadRadius: 10,
-                        ),
-                      ],
+                      boxShadow: [BoxShadow(color: const Color(0xFF4ECDC4).withOpacity(0.2),
+                          blurRadius: 40, spreadRadius: 10)],
                     ),
                   ),
 
                 CustomPaint(
                   size: const Size(260, 260),
-                  painter: _CompassRingPainter(
-                    heading: _compassHeading ?? 0,
-                    activeColor: activeColor,
-                  ),
+                  painter: _CompassRingPainter(heading: _compassHeading ?? 0, activeColor: activeColor,
+                      northLabel: _lang.t('north'), southLabel: _lang.t('south'), westLabel: _lang.t('west')),
                 ),
 
                 SizedBox(
@@ -412,20 +381,15 @@ class _QiblaPageState extends State<QiblaPage> with TickerProviderStateMixin {
                     duration: const Duration(milliseconds: 200),
                     curve: Curves.easeOut,
                     child: CustomPaint(
-                      painter: _QiblaNeedlePainter(
-                          isAligned: isAligned, activeColor: activeColor),
-                    ),
+                        painter: _QiblaNeedlePainter(isAligned: isAligned, activeColor: activeColor)),
                   ),
                 ),
 
                 Container(
                   width: 16, height: 16,
                   decoration: BoxDecoration(
-                    shape: BoxShape.circle,
-                    color: activeColor,
-                    boxShadow: [
-                      BoxShadow(color: activeColor.withOpacity(0.5), blurRadius: 8),
-                    ],
+                    shape: BoxShape.circle, color: activeColor,
+                    boxShadow: [BoxShadow(color: activeColor.withOpacity(0.5), blurRadius: 8)],
                   ),
                 ),
 
@@ -435,8 +399,7 @@ class _QiblaPageState extends State<QiblaPage> with TickerProviderStateMixin {
                     child: Transform.translate(
                       offset: const Offset(0, -82),
                       child: ScaleTransition(
-                        scale: isAligned ? _pulseAnimation :
-                        const AlwaysStoppedAnimation(1.0),
+                        scale: isAligned ? _pulseAnimation : const AlwaysStoppedAnimation(1.0),
                         child: Container(
                           width: 32, height: 32,
                           decoration: BoxDecoration(
@@ -444,8 +407,7 @@ class _QiblaPageState extends State<QiblaPage> with TickerProviderStateMixin {
                             color: activeColor.withOpacity(0.2),
                             border: Border.all(color: activeColor, width: 1.5),
                           ),
-                          child: Icon(Icons.mosque_rounded,
-                              color: activeColor, size: 16),
+                          child: Icon(Icons.mosque_rounded, color: activeColor, size: 16),
                         ),
                       ),
                     ),
@@ -460,17 +422,8 @@ class _QiblaPageState extends State<QiblaPage> with TickerProviderStateMixin {
 
   Widget _buildDirectionIndicator() {
     if (_compassHeading == null) return const SizedBox();
-
     final heading = _compassHeading!;
-    String direction;
-    if (heading < 22.5 || heading >= 337.5) direction = 'Şimal';
-    else if (heading < 67.5) direction = 'Şimal-Şərq';
-    else if (heading < 112.5) direction = 'Şərq';
-    else if (heading < 157.5) direction = 'Cənub-Şərq';
-    else if (heading < 202.5) direction = 'Cənub';
-    else if (heading < 247.5) direction = 'Cənub-Qərb';
-    else if (heading < 292.5) direction = 'Qərb';
-    else direction = 'Şimal-Qərb';
+    final directionLabel = _getDirectionLabel(heading);
 
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 20),
@@ -489,12 +442,10 @@ class _QiblaPageState extends State<QiblaPage> with TickerProviderStateMixin {
                 const Icon(Icons.explore_rounded, color: Colors.white38, size: 16),
                 const SizedBox(width: 6),
                 Text('${heading.toStringAsFixed(0)}°',
-                    style: const TextStyle(fontFamily: 'MyFont2',
-                        fontSize: 13, color: Colors.white70)),
+                    style: const TextStyle(fontFamily: 'MyFont2', fontSize: 13, color: Colors.white70)),
                 const SizedBox(width: 4),
-                Text(direction,
-                    style: const TextStyle(fontFamily: 'MyFont2',
-                        fontSize: 12, color: Colors.white38)),
+                Text(directionLabel,
+                    style: const TextStyle(fontFamily: 'MyFont2', fontSize: 12, color: Colors.white38)),
               ],
             ),
           ),
@@ -510,9 +461,8 @@ class _QiblaPageState extends State<QiblaPage> with TickerProviderStateMixin {
                 children: [
                   const Icon(Icons.mosque_rounded, color: Color(0xFFFFD700), size: 16),
                   const SizedBox(width: 6),
-                  Text('Qiblə: ${_qiblaAngle!.toStringAsFixed(0)}°',
-                      style: const TextStyle(fontFamily: 'MyFont2',
-                          fontSize: 13, color: Color(0xFFFFD700))),
+                  Text('${_lang.t('qibla_label')}: ${_qiblaAngle!.toStringAsFixed(0)}°',
+                      style: const TextStyle(fontFamily: 'MyFont2', fontSize: 13, color: Color(0xFFFFD700))),
                 ],
               ),
             ),
@@ -539,13 +489,10 @@ class _QiblaPageState extends State<QiblaPage> with TickerProviderStateMixin {
                 : [const Color(0xFF1A3A4A), const Color(0xFF0F2235)],
           ),
           border: Border.all(
-            color: isAligned
-                ? const Color(0xFF4ECDC4).withOpacity(0.4)
-                : const Color(0xFFFFD700).withOpacity(0.2),
+            color: isAligned ? const Color(0xFF4ECDC4).withOpacity(0.4) : const Color(0xFFFFD700).withOpacity(0.2),
           ),
           boxShadow: isAligned
-              ? [BoxShadow(color: const Color(0xFF4ECDC4).withOpacity(0.1),
-              blurRadius: 20)]
+              ? [BoxShadow(color: const Color(0xFF4ECDC4).withOpacity(0.1), blurRadius: 20)]
               : [],
         ),
         child: Row(
@@ -554,19 +501,13 @@ class _QiblaPageState extends State<QiblaPage> with TickerProviderStateMixin {
               width: 42, height: 42,
               decoration: BoxDecoration(
                 shape: BoxShape.circle,
-                color: (isAligned
-                    ? const Color(0xFF4ECDC4)
-                    : const Color(0xFFFFD700)).withOpacity(0.15),
+                color: (isAligned ? const Color(0xFF4ECDC4) : const Color(0xFFFFD700)).withOpacity(0.15),
                 border: Border.all(
-                  color: (isAligned
-                      ? const Color(0xFF4ECDC4)
-                      : const Color(0xFFFFD700)).withOpacity(0.4),
-                ),
+                    color: (isAligned ? const Color(0xFF4ECDC4) : const Color(0xFFFFD700)).withOpacity(0.4)),
               ),
               child: Icon(
                 isAligned ? Icons.check_circle_rounded : Icons.navigation_rounded,
-                color: isAligned ? const Color(0xFF4ECDC4) : const Color(0xFFFFD700),
-                size: 22,
+                color: isAligned ? const Color(0xFF4ECDC4) : const Color(0xFFFFD700), size: 22,
               ),
             ),
             const SizedBox(width: 14),
@@ -575,24 +516,17 @@ class _QiblaPageState extends State<QiblaPage> with TickerProviderStateMixin {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    isAligned ? 'Qiblə istiqamətiniz düzgündür!' : 'Qiblə istiqamətini tapın',
-                    style: TextStyle(
-                      fontFamily: 'MyFont2', fontSize: 13,
-                      fontWeight: FontWeight.bold,
-                      color: isAligned ? const Color(0xFF4ECDC4) : Colors.white,
-                    ),
+                    isAligned ? _lang.t('qibla_correct') : _lang.t('qibla_find'),
+                    style: TextStyle(fontFamily: 'MyFont2', fontSize: 13, fontWeight: FontWeight.bold,
+                        color: isAligned ? const Color(0xFF4ECDC4) : Colors.white),
                   ),
                   const SizedBox(height: 2),
                   Text(
                     isAligned
-                        ? 'Üzünüz Kəbəyə doğrudur'
-                        : '${deviation.toStringAsFixed(0)}° sapma var',
-                    style: TextStyle(
-                      fontFamily: 'MyFont2', fontSize: 12,
-                      color: isAligned
-                          ? const Color(0xFF4ECDC4).withOpacity(0.7)
-                          : Colors.white38,
-                    ),
+                        ? _lang.t('face_kaaba')
+                        : '${deviation.toStringAsFixed(0)}° ${_lang.t('deviation')}',
+                    style: TextStyle(fontFamily: 'MyFont2', fontSize: 12,
+                        color: isAligned ? const Color(0xFF4ECDC4).withOpacity(0.7) : Colors.white38),
                   ),
                 ],
               ),
@@ -602,11 +536,9 @@ class _QiblaPageState extends State<QiblaPage> with TickerProviderStateMixin {
                 crossAxisAlignment: CrossAxisAlignment.end,
                 children: [
                   Text('${_userLatitude!.toStringAsFixed(2)}°N',
-                      style: const TextStyle(fontFamily: 'MyFont2',
-                          fontSize: 11, color: Colors.white38)),
+                      style: const TextStyle(fontFamily: 'MyFont2', fontSize: 11, color: Colors.white38)),
                   Text('${_userLongitude!.toStringAsFixed(2)}°E',
-                      style: const TextStyle(fontFamily: 'MyFont2',
-                          fontSize: 11, color: Colors.white38)),
+                      style: const TextStyle(fontFamily: 'MyFont2', fontSize: 11, color: Colors.white38)),
                 ],
               ),
           ],
@@ -619,8 +551,17 @@ class _QiblaPageState extends State<QiblaPage> with TickerProviderStateMixin {
 class _CompassRingPainter extends CustomPainter {
   final double heading;
   final Color activeColor;
+  final String northLabel;
+  final String southLabel;
+  final String westLabel;
 
-  _CompassRingPainter({required this.heading, required this.activeColor});
+  _CompassRingPainter({
+    required this.heading,
+    required this.activeColor,
+    required this.northLabel,
+    required this.southLabel,
+    required this.westLabel,
+  });
 
   @override
   void paint(Canvas canvas, Size size) {
@@ -666,17 +607,14 @@ class _CompassRingPainter extends CustomPainter {
       canvas.drawLine(outerPoint, innerPoint, paint);
 
       if (isMajor) {
-        final labels = ['Ş', 'Ş', 'C', 'Q'];
-        final directions = [0, 90, 180, 270];
         final dirIndex = [0, 90, 180, 270].indexOf(i * 10);
         if (dirIndex != -1) {
+          final labels = [northLabel, 'E', southLabel, westLabel];
           final textPainter = TextPainter(
             text: TextSpan(
-              text: ['Ş', 'Ş-Ş', 'C', 'Q'][dirIndex],
+              text: labels[dirIndex],
               style: TextStyle(
-                color: dirIndex == 0
-                    ? activeColor
-                    : Colors.white.withOpacity(0.5),
+                color: dirIndex == 0 ? activeColor : Colors.white.withOpacity(0.5),
                 fontSize: dirIndex == 0 ? 14 : 11,
                 fontWeight: FontWeight.bold,
               ),
@@ -686,10 +624,8 @@ class _CompassRingPainter extends CustomPainter {
           textPainter.layout();
 
           final labelPoint = Offset(
-            center.dx + (radius - 4 - tickLength - 18) * math.sin(angle) -
-                textPainter.width / 2,
-            center.dy - (radius - 4 - tickLength - 18) * math.cos(angle) -
-                textPainter.height / 2,
+            center.dx + (radius - 4 - tickLength - 18) * math.sin(angle) - textPainter.width / 2,
+            center.dy - (radius - 4 - tickLength - 18) * math.cos(angle) - textPainter.height / 2,
           );
           textPainter.paint(canvas, labelPoint);
         }
@@ -711,7 +647,6 @@ class _QiblaNeedlePainter extends CustomPainter {
   @override
   void paint(Canvas canvas, Size size) {
     final center = Offset(size.width / 2, size.height / 2);
-
     final upColor = activeColor;
     final downColor = Colors.white.withOpacity(0.2);
 
@@ -722,26 +657,14 @@ class _QiblaNeedlePainter extends CustomPainter {
     upPath.lineTo(center.dx + 8, center.dy - 10);
     upPath.close();
 
-    canvas.drawPath(
-        upPath,
-        Paint()
-          ..color = upColor
-          ..style = PaintingStyle.fill);
-
-    canvas.drawPath(
-        upPath,
-        Paint()
-          ..color = upColor.withOpacity(0.6)
-          ..style = PaintingStyle.stroke
-          ..strokeWidth = 1);
+    canvas.drawPath(upPath, Paint()..color = upColor..style = PaintingStyle.fill);
+    canvas.drawPath(upPath, Paint()..color = upColor.withOpacity(0.6)..style = PaintingStyle.stroke..strokeWidth = 1);
 
     if (isAligned) {
-      canvas.drawPath(
-          upPath,
-          Paint()
-            ..color = upColor.withOpacity(0.3)
-            ..maskFilter = const MaskFilter.blur(BlurStyle.normal, 6)
-            ..style = PaintingStyle.fill);
+      canvas.drawPath(upPath, Paint()
+        ..color = upColor.withOpacity(0.3)
+        ..maskFilter = const MaskFilter.blur(BlurStyle.normal, 6)
+        ..style = PaintingStyle.fill);
     }
 
     final downPath = Path();
@@ -751,11 +674,7 @@ class _QiblaNeedlePainter extends CustomPainter {
     downPath.lineTo(center.dx + 6, center.dy + 15);
     downPath.close();
 
-    canvas.drawPath(
-        downPath,
-        Paint()
-          ..color = downColor
-          ..style = PaintingStyle.fill);
+    canvas.drawPath(downPath, Paint()..color = downColor..style = PaintingStyle.fill);
   }
 
   @override

@@ -4,6 +4,7 @@ import 'package:namazvaktim/Pages/DaysPage.dart';
 import 'package:namazvaktim/Pages/QiblaPage.dart';
 import 'package:namazvaktim/Pages/SettingsPage.dart';
 import 'package:namazvaktim/Pages/HomePage.dart';
+import 'package:namazvaktim/services/language_service.dart';
 import 'package:timezone/data/latest_all.dart' as tz;
 import 'services/notification_service.dart';
 
@@ -15,17 +16,50 @@ void main() async {
   final notificationService = NotificationService();
   await NotificationService.initialize();
 
+  await LanguageService().loadLanguage();
+
   runApp(const MyApp());
 }
 
-class MyApp extends StatelessWidget {
+class MyApp extends StatefulWidget {
   const MyApp({super.key});
 
   @override
+  State<MyApp> createState() => _MyAppState();
+}
+
+class _MyAppState extends State<MyApp> {
+  final LanguageService _languageService = LanguageService();
+
+  @override
+  void initState() {
+    super.initState();
+    _languageService.addListener(_onLanguageChanged);
+  }
+
+  @override
+  void dispose() {
+    _languageService.removeListener(_onLanguageChanged);
+    super.dispose();
+  }
+
+  void _onLanguageChanged() {
+    setState(() {});
+  }
+
+  @override
   Widget build(BuildContext context) {
+    final isRTL = _languageService.isRTL;
+
     return MaterialApp(
-      title: 'Namaz Vaxtı',
+      title: _languageService.t('app_name'),
       debugShowCheckedModeBanner: false,
+      builder: (context, child) {
+        return Directionality(
+          textDirection: isRTL ? TextDirection.rtl : TextDirection.ltr,
+          child: child!,
+        );
+      },
       theme: ThemeData(
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
       ),
@@ -43,6 +77,7 @@ class BNavBar extends StatefulWidget {
 
 class _BNavBarState extends State<BNavBar> {
   int _selectedIndex = 0;
+  final LanguageService _lang = LanguageService();
 
   final List<Widget> _pages = [
     const HomePage(),
@@ -50,6 +85,20 @@ class _BNavBarState extends State<BNavBar> {
     const QiblaPage(),
     const SettingsPage(),
   ];
+
+  @override
+  void initState() {
+    super.initState();
+    _lang.addListener(_onLangChanged);
+  }
+
+  @override
+  void dispose() {
+    _lang.removeListener(_onLangChanged);
+    super.dispose();
+  }
+
+  void _onLangChanged() => setState(() {});
 
   void _onItemTapped(int index) {
     setState(() => _selectedIndex = index);
@@ -73,10 +122,10 @@ class _BNavBarState extends State<BNavBar> {
 
   Widget _buildNavBar() {
     final items = [
-      _NavItem(icon: Icons.home_rounded,       outlinedIcon: Icons.home_outlined,       label: 'Ana Səhifə'),
-      _NavItem(icon: Icons.auto_awesome_rounded, outlinedIcon: Icons.auto_awesome_outlined, label: 'Dini Günlər'),
-      _NavItem(icon: Icons.explore_rounded,    outlinedIcon: Icons.explore_outlined,    label: 'Qiblə'),
-      _NavItem(icon: Icons.settings_rounded,   outlinedIcon: Icons.settings_outlined,   label: 'Ayarlar'),
+      _NavItem(icon: Icons.home_rounded, outlinedIcon: Icons.home_outlined, label: _lang.t('nav_home')),
+      _NavItem(icon: Icons.auto_awesome_rounded, outlinedIcon: Icons.auto_awesome_outlined, label: _lang.t('nav_days')),
+      _NavItem(icon: Icons.explore_rounded, outlinedIcon: Icons.explore_outlined, label: _lang.t('nav_qibla')),
+      _NavItem(icon: Icons.settings_rounded, outlinedIcon: Icons.settings_outlined, label: _lang.t('nav_settings')),
     ];
 
     return Container(
