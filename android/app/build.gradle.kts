@@ -49,6 +49,16 @@ android {
     buildTypes {
         release {
             signingConfig = signingConfigs.getByName("release")
+            isMinifyEnabled = true
+            isShrinkResources = true
+        }
+    }
+    applicationVariants.all {
+        val variant = this
+        outputs.all {
+            val output = this as? com.android.build.gradle.internal.api.BaseVariantOutputImpl
+            val abi = output?.filters?.find { it.filterType == "ABI" }?.identifier ?: "universal"
+            output?.outputFileName = "namazvaxti-${abi}.apk"
         }
     }
 }
