@@ -17,7 +17,7 @@ class _ShareAppPageState extends State<ShareAppPage> {
   final AppThemes _appThemes = AppThemes();
 
   static const String _apkUrl =
-      'https://github.com/AydinBagirov/Namaz-Vaxti/releases/tag/v2.5.0';
+      'https://github.com/AydinBagirov/Namaz-Vaxti/releases/tag/v2.7.0';
 
   @override
   void initState() {
