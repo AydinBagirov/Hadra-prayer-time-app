@@ -10,7 +10,6 @@ class EzanService {
     'notification': '',
   };
 
-  // Ezan sesini çal
   static Future<void> playEzan({String? ezanType}) async {
     try {
       final prefs = await SharedPreferences.getInstance();

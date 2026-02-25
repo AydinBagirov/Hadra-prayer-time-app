@@ -376,7 +376,7 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
           child: Padding(
             padding: const EdgeInsets.all(20.0),
             child: Column(mainAxisSize: MainAxisSize.min, children: [
-              // Başlıq
+
               Row(
                 children: [
                   Container(
@@ -402,7 +402,7 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
               ),
               const SizedBox(height: 16),
 
-              // GPS seçimi
+
               _dialogOptionCard(
                 theme: theme,
                 color: theme.primary.withOpacity(0.08),
@@ -420,7 +420,7 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
               ),
               const SizedBox(height: 10),
 
-              // Xəritə seçimi
+
               _dialogOptionCard(
                 theme: theme,
                 color: const Color(0xFF5B9BD5).withOpacity(0.08),
@@ -446,7 +446,7 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
                 },
               ),
 
-              // Ayırıcı
+
               Padding(
                 padding: const EdgeInsets.symmetric(vertical: 14),
                 child: Row(children: [
@@ -466,7 +466,7 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
                 ]),
               ),
 
-              // Şəhər siyahısı
+
               Flexible(
                 child: ListView.builder(
                   shrinkWrap: true,

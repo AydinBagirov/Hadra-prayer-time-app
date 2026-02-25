@@ -136,7 +136,6 @@ class PrayerService {
       if (cached == null) {
         await _fetchFromApi(location, date);
         downloadedCount++;
-        // API rate limit için bekleme
         await Future.delayed(const Duration(milliseconds: 300));
       } else {
         cachedCount++;

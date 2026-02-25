@@ -19,9 +19,7 @@ class NotificationService {
 
     const androidSettings =
     AndroidInitializationSettings('@mipmap/ic_launcher');
-
     const iosSettings = DarwinInitializationSettings();
-
     const settings = InitializationSettings(
       android: androidSettings,
       iOS: iosSettings,
@@ -33,6 +31,7 @@ class NotificationService {
         _onNotificationTapped(response);
       },
     );
+
     await _notifications
         .resolvePlatformSpecificImplementation<
         AndroidFlutterLocalNotificationsPlugin>()
@@ -44,17 +43,12 @@ class NotificationService {
   static void _onNotificationTapped(NotificationResponse response) async {
     final payload = response.payload;
     if (payload == null) return;
-
     final parts = payload.split(':');
     if (parts.length != 2) return;
-
     if (parts[0] == 'ezan') {
       final prayerKey = parts[1];
       final shouldPlay = await EzanService.shouldPlayEzan(prayerKey);
-
-      if (shouldPlay) {
-        await EzanService.playEzan();
-      }
+      if (shouldPlay) await EzanService.playEzan();
     }
   }
 
@@ -82,7 +76,7 @@ class NotificationService {
         lang.t('notif_imsak_body'),
         imsak,
         'imsak',
-        prefs.getBool('imsakNotification') ?? true,
+        prefs.getBool('imsakNotification') ?? false,
         prefs.getBool('imsakEzan') ?? false);
 
     await _scheduleIfEnabled(
@@ -91,7 +85,7 @@ class NotificationService {
         lang.t('notif_sunrise_body'),
         sunrise,
         'sunrise',
-        prefs.getBool('sunriseNotification') ?? true,
+        prefs.getBool('sunriseNotification') ?? false,
         prefs.getBool('sunriseEzan') ?? false);
 
     await _scheduleIfEnabled(
@@ -100,8 +94,8 @@ class NotificationService {
         lang.t('notif_dhuhr_body'),
         dhuhr,
         'dhuhr',
-        prefs.getBool('dhuhrNotification') ?? true,
-        prefs.getBool('dhuhrEzan') ?? true);
+        prefs.getBool('dhuhrNotification') ?? false,
+        prefs.getBool('dhuhrEzan') ?? false);
 
     await _scheduleIfEnabled(
         4,
@@ -109,8 +103,8 @@ class NotificationService {
         lang.t('notif_asr_body'),
         asr,
         'asr',
-        prefs.getBool('asrNotification') ?? true,
-        prefs.getBool('asrEzan') ?? true);
+        prefs.getBool('asrNotification') ?? false,
+        prefs.getBool('asrEzan') ?? false);
 
     await _scheduleIfEnabled(
         5,
@@ -118,8 +112,8 @@ class NotificationService {
         lang.t('notif_maghrib_body'),
         maghrib,
         'maghrib',
-        prefs.getBool('maghribNotification') ?? true,
-        prefs.getBool('maghribEzan') ?? true);
+        prefs.getBool('maghribNotification') ?? false,
+        prefs.getBool('maghribEzan') ?? false);
 
     await _scheduleIfEnabled(
         6,
@@ -127,8 +121,8 @@ class NotificationService {
         lang.t('notif_isha_body'),
         isha,
         'isha',
-        prefs.getBool('ishaNotification') ?? true,
-        prefs.getBool('ishaEzan') ?? true);
+        prefs.getBool('ishaNotification') ?? false,
+        prefs.getBool('ishaEzan') ?? false);
   }
 
   static Future<void> _scheduleIfEnabled(
@@ -141,7 +135,6 @@ class NotificationService {
       bool playEzan,
       ) async {
     if (!notificationEnabled) return;
-
     await _scheduleNotification(
       id: id,
       title: title,
@@ -161,17 +154,15 @@ class NotificationService {
     required bool playEzan,
   }) async {
     if (!time.contains(':')) return;
-
     final parts = time.split(':');
     if (parts.length < 2) return;
 
-    final hour = int.tryParse(parts[0]);
+    final hour   = int.tryParse(parts[0]);
     final minute = int.tryParse(parts[1]);
     if (hour == null || minute == null) return;
 
     final now = DateTime.now();
     var scheduled = DateTime(now.year, now.month, now.day, hour, minute);
-
     if (scheduled.isBefore(now)) {
       scheduled = scheduled.add(const Duration(days: 1));
     }
@@ -179,8 +170,7 @@ class NotificationService {
     final tzDate = tz.TZDateTime.from(scheduled, tz.local);
 
     final prefs = await SharedPreferences.getInstance();
-    final selectedEzan = prefs.getString('selectedEzan') ?? 'default';
-
+    final selectedEzan = prefs.getString('selectedEzan') ?? 'notification';
     final shouldPlayEzanSound = playEzan && selectedEzan == 'default';
 
     final androidDetails = shouldPlayEzanSound
@@ -203,11 +193,8 @@ class NotificationService {
     );
 
     const iosDetails = DarwinNotificationDetails();
-
     final details = NotificationDetails(
-      android: androidDetails,
-      iOS: iosDetails,
-    );
+        android: androidDetails, iOS: iosDetails);
 
     await _notifications.zonedSchedule(
       id: id,
@@ -223,7 +210,6 @@ class NotificationService {
 
   static Future<void> sendTestNotification() async {
     await initialize();
-
     const androidDetails = AndroidNotificationDetails(
       'test_channel',
       'Test Bildirişlər',
@@ -231,9 +217,7 @@ class NotificationService {
       importance: Importance.high,
       priority: Priority.high,
     );
-
     const details = NotificationDetails(android: androidDetails);
-
     await _notifications.show(
       id: 999,
       title: 'Test Bildiriş',

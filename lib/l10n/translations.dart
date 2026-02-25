@@ -146,6 +146,10 @@ class Translations {
       'share_text': 'Namaz Vaxtı tətbiqini yoxlayın! Namaz vaxtları, qiblə, dini günlər və daha çox. APK: ',
       'share_via': 'Digər tətbiqlər vasitəsilə paylaş',
       'share_link_copied': 'Link kopyalandı!',
+      'notif_permission_title': 'Bildiriş İcazəsi',
+      'notif_permission_body': 'Namaz vaxtlarında bildiriş almaq üçün icazə verməlisiniz.',
+      'notif_permission_permanent': 'Bildiriş icazəsi rədd edilib. Parametrlərdən əl ilə açın.',
+      'open_settings': 'Parametrləri Aç',
     },
 
     'tr': {
@@ -283,6 +287,10 @@ class Translations {
       'share_text': 'Namaz Vakti uygulamasına göz atın! Namaz vakitleri, kıble, dini günler ve daha fazlası. APK: ',
       'share_via': 'Diğer uygulamalarla paylaş',
       'share_link_copied': 'Link kopyalandı!',
+      'notif_permission_title': 'Bildirim İzni',
+      'notif_permission_body': 'Namaz vakitlerinde bildirim alabilmek için izin vermelisiniz.',
+      'notif_permission_permanent': 'Bildirim izni reddedildi. Ayarlardan manuel olarak açın.',
+      'open_settings': 'Ayarları Aç',
     },
 
     'en': {
@@ -420,6 +428,10 @@ class Translations {
       'share_text': 'Check out Prayer Times app! Prayer times, Qibla, holy days and more. APK: ',
       'share_via': 'Share via other apps',
       'share_link_copied': 'Link copied!',
+      'notif_permission_title': 'Notification Permission',
+      'notif_permission_body': 'Please allow notifications to receive prayer time reminders.',
+      'notif_permission_permanent': 'Notification permission was denied. Please enable it manually in settings.',
+      'open_settings': 'Open Settings',
     },
 
     'ar': {
@@ -553,6 +565,10 @@ class Translations {
       'share_text': 'جرّب تطبيق أوقات الصلاة! أوقات الصلاة والقبلة والمناسبات الإسلامية والمزيد. APK: ',
       'share_via': 'مشاركة عبر تطبيقات أخرى',
       'share_link_copied': 'تم نسخ الرابط!',
+      'notif_permission_title': 'إذن الإشعارات',
+      'notif_permission_body': 'يرجى السماح بالإشعارات لتلقي تنبيهات أوقات الصلاة.',
+      'notif_permission_permanent': 'تم رفض إذن الإشعارات. يرجى تفعيله يدوياً من الإعدادات.',
+      'open_settings': 'فتح الإعدادات',
     },
 
     'fa': {
@@ -686,6 +702,10 @@ class Translations {
       'share_text': 'برنامه اوقات نماز را ببینید! اوقات نماز، قبله، مناسبت‌های اسلامی و بیشتر. APK: ',
       'share_via': 'اشتراک‌گذاری از طریق برنامه‌های دیگر',
       'share_link_copied': 'لینک کپی شد!',
+      'notif_permission_title': 'مجوز اعلان',
+      'notif_permission_body': 'لطفاً برای دریافت یادآوری اوقات نماز، مجوز اعلان را بدهید.',
+      'notif_permission_permanent': 'مجوز اعلان رد شد. لطفاً از تنظیمات به صورت دستی فعال کنید.',
+      'open_settings': 'باز کردن تنظیمات',
     },
 
     'id': {
@@ -821,6 +841,10 @@ class Translations {
       'share_text': 'Coba aplikasi Waktu Shalat! Waktu shalat, kiblat, hari suci dan lainnya. APK: ',
       'share_via': 'Bagikan via aplikasi lain',
       'share_link_copied': 'Tautan disalin!',
+      'notif_permission_title': 'Izin Notifikasi',
+      'notif_permission_body': 'Izinkan notifikasi untuk menerima pengingat waktu shalat.',
+      'notif_permission_permanent': 'Izin notifikasi ditolak. Aktifkan secara manual di pengaturan.',
+      'open_settings': 'Buka Pengaturan',
     },
 
     // ─── RUSSIAN ───────────────────────────────────────────────────────────────
@@ -955,6 +979,10 @@ class Translations {
       'share_text': 'Попробуйте приложение Время намаза! Время намаза, кибла, исламские праздники и многое другое. APK: ',
       'share_via': 'Поделиться через другие приложения',
       'share_link_copied': 'Ссылка скопирована!',
+      'notif_permission_title': 'Разрешение уведомлений',
+      'notif_permission_body': 'Разрешите уведомления, чтобы получать напоминания о времени намаза.',
+      'notif_permission_permanent': 'Разрешение отклонено. Включите вручную в настройках.',
+      'open_settings': 'Открыть настройки',
     },
 
     // ─── FRENCH ────────────────────────────────────────────────────────────────
@@ -1089,6 +1117,10 @@ class Translations {
       'share_text': 'Découvrez l\'application Heures de prière ! Heures de prière, Qibla, jours saints et plus encore. APK : ',
       'share_via': 'Partager via d\'autres applications',
       'share_link_copied': 'Lien copié !',
+      'notif_permission_title': 'Autorisation de notification',
+      'notif_permission_body': 'Autorisez les notifications pour recevoir les rappels de prière.',
+      'notif_permission_permanent': 'Autorisation refusée. Activez-la manuellement dans les paramètres.',
+      'open_settings': 'Ouvrir les paramètres',
     },
 
     // ─── GERMAN ────────────────────────────────────────────────────────────────
@@ -1223,6 +1255,10 @@ class Translations {
       'share_text': 'Schau dir die Gebetszeiten-App an! Gebetszeiten, Qibla, islamische Festtage und mehr. APK: ',
       'share_via': 'Über andere Apps teilen',
       'share_link_copied': 'Link kopiert!',
+      'notif_permission_title': 'Benachrichtigungsberechtigung',
+      'notif_permission_body': 'Erlauben Sie Benachrichtigungen für Gebetszeit-Erinnerungen.',
+      'notif_permission_permanent': 'Berechtigung verweigert. Bitte manuell in den Einstellungen aktivieren.',
+      'open_settings': 'Einstellungen öffnen',
     },
 
     // ─── SPANISH ───────────────────────────────────────────────────────────────
@@ -1357,6 +1393,11 @@ class Translations {
       'share_text': '¡Descubre la app de Horarios de Oración! Horarios, Qibla, días islámicos y más. APK: ',
       'share_via': 'Compartir mediante otras apps',
       'share_link_copied': '¡Enlace copiado!',
+      'notif_permission_title': 'Permiso de notificación',
+      'notif_permission_body': 'Permite las notificaciones para recibir recordatorios de oración.',
+      'notif_permission_permanent': 'Permiso denegado. Actívalo manualmente en ajustes.',
+      'open_settings': 'Abrir ajustes',
+
     },
 
     // ─── KOREAN ────────────────────────────────────────────────────────────────
@@ -1491,6 +1532,10 @@ class Translations {
       'share_text': '예배 시간 앱을 확인해 보세요! 예배 시간, 끼블라, 이슬람 기념일 등. APK: ',
       'share_via': '다른 앱으로 공유',
       'share_link_copied': '링크 복사됨!',
+      'notif_permission_title': '알림 권한',
+      'notif_permission_body': '예배 시간 알림을 받으려면 알림을 허용해 주세요.',
+      'notif_permission_permanent': '알림 권한이 거부되었습니다. 설정에서 수동으로 활성화하세요.',
+      'open_settings': '설정 열기',
     },
 
     // ─── CHINESE (Simplified) ──────────────────────────────────────────────────
@@ -1625,6 +1670,10 @@ class Translations {
       'share_text': '看看这款礼拜时间应用！礼拜时间、朝向、伊斯兰节日等。APK：',
       'share_via': '通过其他应用分享',
       'share_link_copied': '链接已复制！',
+      'notif_permission_title': '通知权限',
+      'notif_permission_body': '请允许通知以接收礼拜时间提醒。',
+      'notif_permission_permanent': '通知权限已被拒绝，请在设置中手动开启。',
+      'open_settings': '打开设置',
     },
 
     // ─── JAPANESE ──────────────────────────────────────────────────────────────
@@ -1759,6 +1808,10 @@ class Translations {
       'share_text': '礼拝時間アプリをご覧ください！礼拝時間、キブラ、イスラムの祝日など。APK: ',
       'share_via': '他のアプリで共有',
       'share_link_copied': 'リンクをコピーしました！',
+      'notif_permission_title': '通知の許可',
+      'notif_permission_body': '礼拝時間のリマインダーを受け取るために通知を許可してください。',
+      'notif_permission_permanent': '通知の許可が拒否されました。設定から手動で有効にしてください。',
+      'open_settings': '設定を開く',
     },
 
     // ─── MONGOLIAN ─────────────────────────────────────────────────────────────
@@ -1893,6 +1946,10 @@ class Translations {
       'share_text': 'Намазын цагийн аппыг үзээрэй! Намазын цаг, кибла, исламын баярууд болон бусад. APK: ',
       'share_via': 'Бусад аппаар хуваалцах',
       'share_link_copied': 'Холбоос хуулагдлаа!',
+      'notif_permission_title': 'Мэдэгдлийн зөвшөөрөл',
+      'notif_permission_body': 'Намазын цагийн сануулга авахын тулд мэдэгдлийг зөвшөөрнө үү.',
+      'notif_permission_permanent': 'Мэдэгдлийн зөвшөөрөл татгалзагдлаа. Тохиргооноос гараар идэвхжүүлнэ үү.',
+      'open_settings': 'Тохиргоо нээх',
     },
 
     // ─── URDU ──────────────────────────────────────────────────────────────────
@@ -2027,6 +2084,10 @@ class Translations {
       'share_text': 'نماز کے اوقات کی ایپ دیکھیں! نماز کے اوقات، قبلہ، اسلامی تہوار اور مزید۔ APK: ',
       'share_via': 'دوسری ایپس سے شیئر کریں',
       'share_link_copied': 'لنک کاپی ہو گیا!',
+      'notif_permission_title': 'اطلاع کی اجازت',
+      'notif_permission_body': 'نماز کے اوقات کی یاد دہانی کے لیے اطلاعات کی اجازت دیں۔',
+      'notif_permission_permanent': 'اطلاع کی اجازت رد کر دی گئی۔ ترتیبات میں دستی طور پر فعال کریں۔',
+      'open_settings': 'ترتیبات کھولیں',
     },
 
     // ─── HINDI ─────────────────────────────────────────────────────────────────
@@ -2161,6 +2222,11 @@ class Translations {
       'share_text': 'नमाज़ के वक्त ऐप देखें! नमाज़ के वक्त, क़िबला, इस्लामी त्योहार और बहुत कुछ। APK: ',
       'share_via': 'दूसरे ऐप्स से शेयर करें',
       'share_link_copied': 'लिंक कॉपी हो गया!',
+      'notif_permission_title': 'सूचना अनुमति',
+      'notif_permission_body': 'नमाज़ के वक्त की याद दिलाने के लिए सूचनाएं अनुमति दें।',
+      'notif_permission_permanent': 'सूचना अनुमति अस्वीकृत। सेटिंग्स में मैन्युअल रूप से सक्षम करें।',
+      'open_settings': 'सेटिंग्स खोलें',
+
     },
   };
 }

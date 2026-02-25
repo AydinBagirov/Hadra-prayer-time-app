@@ -104,7 +104,7 @@ class _ReportBugPageState extends State<ReportBugPage> {
       backgroundColor: theme.background,
       body: Stack(
         children: [
-          // Glow — sabit qırmızı əvəzinə tema rəngi
+
           Positioned(
             top: -50,
             right: -40,
@@ -124,7 +124,7 @@ class _ReportBugPageState extends State<ReportBugPage> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                // Header
+
                 Padding(
                   padding: const EdgeInsets.fromLTRB(4, 8, 20, 0),
                   child: Row(
@@ -162,7 +162,7 @@ class _ReportBugPageState extends State<ReportBugPage> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        // Info kartı — tema rəngi ilə
+
                         Container(
                           width: double.infinity,
                           padding: const EdgeInsets.all(20),
@@ -217,7 +217,7 @@ class _ReportBugPageState extends State<ReportBugPage> {
                                 color: Colors.white60)),
                         const SizedBox(height: 8),
 
-                        // TextField
+
                         Container(
                           decoration: BoxDecoration(
                             color: Colors.white.withOpacity(0.04),
@@ -245,7 +245,7 @@ class _ReportBugPageState extends State<ReportBugPage> {
 
                         const SizedBox(height: 8),
 
-                        // Versiya & dil
+
                         Row(
                           children: [
                             const Icon(Icons.info_outline_rounded,
@@ -262,7 +262,7 @@ class _ReportBugPageState extends State<ReportBugPage> {
 
                         const SizedBox(height: 24),
 
-                        // Göndər düyməsi — tema gradienti
+
                         SizedBox(
                           width: double.infinity,
                           child: GestureDetector(
@@ -315,7 +315,7 @@ class _ReportBugPageState extends State<ReportBugPage> {
                           ),
                         ),
 
-                        // Nəticə mesajı
+
                         if (_resultMsg != null) ...[
                           const SizedBox(height: 16),
                           Container(

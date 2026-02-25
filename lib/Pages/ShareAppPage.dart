@@ -77,7 +77,6 @@ class _ShareAppPageState extends State<ShareAppPage> {
       backgroundColor: theme.background,
       body: Stack(
         children: [
-          // Glow — tema rəngi ilə
           Positioned(
             bottom: 60,
             right: -50,
@@ -97,7 +96,6 @@ class _ShareAppPageState extends State<ShareAppPage> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                // Header
                 Padding(
                   padding: const EdgeInsets.fromLTRB(4, 8, 20, 0),
                   child: Row(
@@ -132,7 +130,6 @@ class _ShareAppPageState extends State<ShareAppPage> {
                     padding: const EdgeInsets.symmetric(horizontal: 20),
                     child: Column(
                       children: [
-                        // App kartı — tema gradienti ilə
                         Container(
                           width: double.infinity,
                           padding: const EdgeInsets.all(24),
@@ -196,8 +193,6 @@ class _ShareAppPageState extends State<ShareAppPage> {
                           ),
                         ),
                         const SizedBox(height: 20),
-
-                        // GitHub / APK kartı — tema rəngi ilə
                         Container(
                           width: double.infinity,
                           padding: const EdgeInsets.all(18),
@@ -245,7 +240,6 @@ class _ShareAppPageState extends State<ShareAppPage> {
                                 ],
                               ),
                               const SizedBox(height: 14),
-                              // Link container — tema rəngi ilə
                               Container(
                                 padding: const EdgeInsets.symmetric(
                                     horizontal: 12, vertical: 10),
@@ -299,8 +293,6 @@ class _ShareAppPageState extends State<ShareAppPage> {
                           ),
                         ),
                         const SizedBox(height: 14),
-
-                        // Paylaş düyməsi — tema gradienti
                         GestureDetector(
                           onTap: _shareViaApps,
                           child: Container(
