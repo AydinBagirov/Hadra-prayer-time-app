@@ -5,6 +5,7 @@ import 'package:http/http.dart' as http;
 import 'package:path_provider/path_provider.dart';
 import 'package:namazvaktim/services/language_service.dart';
 import '../location/location_service.dart';
+import '../services/theme_service.dart';
 
 class ImsakiyePage extends StatefulWidget {
   final CityLocation? location;
@@ -21,21 +22,24 @@ class _ImsakiyePageState extends State<ImsakiyePage> {
   List<DailyPrayerTime> monthlyPrayerTimes = [];
   final DateTime currentMonth = DateTime.now();
   final LanguageService _lang = LanguageService();
+  final AppThemes _appThemes = AppThemes();
 
   @override
   void initState() {
     super.initState();
-    _lang.addListener(_onLangChanged);
+    _lang.addListener(_onChanged);
+    _appThemes.addListener(_onChanged);
     _initializeLocation();
   }
 
   @override
   void dispose() {
-    _lang.removeListener(_onLangChanged);
+    _lang.removeListener(_onChanged);
+    _appThemes.removeListener(_onChanged);
     super.dispose();
   }
 
-  void _onLangChanged() => setState(() {});
+  void _onChanged() => setState(() {});
 
   Future<void> _initializeLocation() async {
     if (!mounted) return;
@@ -146,17 +150,17 @@ class _ImsakiyePageState extends State<ImsakiyePage> {
 
   @override
   Widget build(BuildContext context) {
-    // ✅ Ay adı artık dile göre geliyor
+    final theme = _appThemes.current;
     final localizedMonth = _lang.t('month_${currentMonth.month}');
 
     return Scaffold(
-      backgroundColor: const Color(0xFF080E1A),
+      backgroundColor: theme.background,
       body: Stack(
         children: [
           Positioned(top: -60, right: -40,
             child: Container(width: 200, height: 200,
               decoration: BoxDecoration(shape: BoxShape.circle,
-                  gradient: RadialGradient(colors: [const Color(0xFF4ECDC4).withOpacity(0.08), Colors.transparent])),
+                  gradient: RadialGradient(colors: [theme.primary.withOpacity(0.08), Colors.transparent])),
             ),
           ),
           SafeArea(
@@ -164,47 +168,37 @@ class _ImsakiyePageState extends State<ImsakiyePage> {
               children: [
                 Padding(
                   padding: const EdgeInsets.fromLTRB(4, 8, 20, 0),
-                  child: Row(
-                    children: [
-                      IconButton(
-                        onPressed: () => Navigator.pop(context),
-                        icon: const Icon(Icons.arrow_back_ios_rounded, color: Colors.white70, size: 20),
-                      ),
-                      Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(_lang.t('imsakiye'),
-                              style: const TextStyle(fontSize: 18, fontFamily: 'MyFont2',
-                                  fontWeight: FontWeight.bold, color: Colors.white)),
-                          // ✅ Dile göre ay adı + yıl
-                          Text("$localizedMonth ${currentMonth.year}",
-                              style: const TextStyle(fontSize: 12, fontFamily: 'MyFont2',
-                                  color: Color(0xFF4ECDC4))),
-                        ],
-                      ),
-                    ],
-                  ),
+                  child: Row(children: [
+                    IconButton(
+                      onPressed: () => Navigator.pop(context),
+                      icon: const Icon(Icons.arrow_back_ios_rounded, color: Colors.white70, size: 20),
+                    ),
+                    Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+                      Text(_lang.t('imsakiye'),
+                          style: const TextStyle(fontSize: 18, fontFamily: 'MyFont2', fontWeight: FontWeight.bold, color: Colors.white)),
+                      Text("$localizedMonth ${currentMonth.year}",
+                          style: TextStyle(fontSize: 12, fontFamily: 'MyFont2', color: theme.primary)),
+                    ]),
+                  ]),
                 ),
 
                 Container(
                   margin: const EdgeInsets.fromLTRB(20, 12, 20, 8),
                   padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
                   decoration: BoxDecoration(
-                    color: const Color(0xFF4ECDC4).withOpacity(0.08),
+                    color: theme.primary.withOpacity(0.08),
                     borderRadius: BorderRadius.circular(12),
-                    border: Border.all(color: const Color(0xFF4ECDC4).withOpacity(0.15)),
+                    border: Border.all(color: theme.primary.withOpacity(0.15)),
                   ),
-                  child: Row(
-                    children: [
-                      const SizedBox(width: 36),
-                      ..._headerLabels(),
-                    ],
-                  ),
+                  child: Row(children: [
+                    const SizedBox(width: 36),
+                    ..._headerLabels(theme),
+                  ]),
                 ),
 
                 Expanded(
                   child: loading
-                      ? const Center(child: CircularProgressIndicator(color: Color(0xFF4ECDC4), strokeWidth: 2))
+                      ? Center(child: CircularProgressIndicator(color: theme.primary, strokeWidth: 2))
                       : monthlyPrayerTimes.isEmpty
                       ? Center(child: Text(_lang.t('loading'),
                       style: const TextStyle(fontFamily: 'MyFont2', color: Colors.white54)))
@@ -223,31 +217,29 @@ class _ImsakiyePageState extends State<ImsakiyePage> {
                         margin: const EdgeInsets.only(bottom: 6),
                         padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
                         decoration: BoxDecoration(
-                          color: isToday ? const Color(0xFF4ECDC4).withOpacity(0.10) : Colors.white.withOpacity(0.03),
+                          color: isToday ? theme.primary.withOpacity(0.10) : Colors.white.withOpacity(0.03),
                           borderRadius: BorderRadius.circular(14),
                           border: Border.all(
-                            color: isToday ? const Color(0xFF4ECDC4).withOpacity(0.4) : Colors.white.withOpacity(0.06),
+                            color: isToday ? theme.primary.withOpacity(0.4) : Colors.white.withOpacity(0.06),
                             width: isToday ? 1.2 : 1,
                           ),
                         ),
-                        child: Row(
-                          children: [
-                            SizedBox(
-                              width: 36,
-                              child: Text('${dayTime.date.day}',
-                                style: TextStyle(fontFamily: 'MyFont2', fontSize: 14,
-                                    fontWeight: isToday ? FontWeight.bold : FontWeight.w500,
-                                    color: isToday ? const Color(0xFF4ECDC4) : Colors.white54),
-                              ),
+                        child: Row(children: [
+                          SizedBox(
+                            width: 36,
+                            child: Text('${dayTime.date.day}',
+                              style: TextStyle(fontFamily: 'MyFont2', fontSize: 14,
+                                  fontWeight: isToday ? FontWeight.bold : FontWeight.w500,
+                                  color: isToday ? theme.primary : Colors.white54),
                             ),
-                            ..._timeCell(dayTime.imsak, isToday),
-                            ..._timeCell(dayTime.sunrise, isToday),
-                            ..._timeCell(dayTime.dhuhr, isToday),
-                            ..._timeCell(dayTime.asr, isToday),
-                            ..._timeCell(dayTime.maghrib, isToday),
-                            ..._timeCell(dayTime.isha, isToday),
-                          ],
-                        ),
+                          ),
+                          ..._timeCell(dayTime.imsak, isToday),
+                          ..._timeCell(dayTime.sunrise, isToday),
+                          ..._timeCell(dayTime.dhuhr, isToday),
+                          ..._timeCell(dayTime.asr, isToday),
+                          ..._timeCell(dayTime.maghrib, isToday),
+                          ..._timeCell(dayTime.isha, isToday),
+                        ]),
                       );
                     },
                   ),
@@ -260,19 +252,11 @@ class _ImsakiyePageState extends State<ImsakiyePage> {
     );
   }
 
-  List<Widget> _headerLabels() {
-    final labels = [
-      _lang.t('imsak'),
-      _lang.t('sunrise'),
-      _lang.t('dhuhr'),
-      _lang.t('asr'),
-      _lang.t('maghrib'),
-      _lang.t('isha'),
-    ];
+  List<Widget> _headerLabels(AppThemeData theme) {
+    final labels = [_lang.t('imsak'), _lang.t('sunrise'), _lang.t('dhuhr'), _lang.t('asr'), _lang.t('maghrib'), _lang.t('isha')];
     return labels.map((l) => Expanded(
       child: Text(l, textAlign: TextAlign.center,
-          style: const TextStyle(fontFamily: 'MyFont2', fontSize: 10,
-              color: Color(0xFF4ECDC4), letterSpacing: 0.3)),
+          style: TextStyle(fontFamily: 'MyFont2', fontSize: 10, color: theme.primary, letterSpacing: 0.3)),
     )).toList();
   }
 

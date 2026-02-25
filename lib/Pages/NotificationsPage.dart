@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:namazvaktim/services/language_service.dart';
 import '../services/ezan_service.dart';
+import '../services/theme_service.dart';
 
 class NotificationsPage extends StatefulWidget {
   const NotificationsPage({super.key});
@@ -28,21 +29,24 @@ class _NotificationsPageState extends State<NotificationsPage> {
   String selectedEzan = 'default';
 
   final LanguageService _lang = LanguageService();
+  final AppThemes _appThemes = AppThemes();
 
   @override
   void initState() {
     super.initState();
-    _lang.addListener(_onLangChanged);
+    _lang.addListener(_onChanged);
+    _appThemes.addListener(_onChanged);
     _loadSettings();
   }
 
   @override
   void dispose() {
-    _lang.removeListener(_onLangChanged);
+    _lang.removeListener(_onChanged);
+    _appThemes.removeListener(_onChanged);
     super.dispose();
   }
 
-  void _onLangChanged() => setState(() {});
+  void _onChanged() => setState(() {});
 
   List<Map<String, String>> get ezanSounds => [
     {'id': 'default', 'name': _lang.t('default_ezan')},
@@ -114,7 +118,9 @@ class _NotificationsPageState extends State<NotificationsPage> {
         color: Colors.white.withOpacity(0.04),
         borderRadius: BorderRadius.circular(18),
         border: Border.all(
-          color: isNotificationEnabled ? iconColor.withOpacity(0.3) : Colors.white.withOpacity(0.07),
+          color: isNotificationEnabled
+              ? iconColor.withOpacity(0.3)
+              : Colors.white.withOpacity(0.07),
           width: isNotificationEnabled ? 1.2 : 1,
         ),
       ),
@@ -128,11 +134,12 @@ class _NotificationsPageState extends State<NotificationsPage> {
                   color: iconColor.withOpacity(isNotificationEnabled ? 0.18 : 0.07),
                   borderRadius: BorderRadius.circular(11),
                 ),
-                child: Icon(icon, color: isNotificationEnabled ? iconColor : Colors.white24, size: 20),
+                child: Icon(icon,
+                    color: isNotificationEnabled ? iconColor : Colors.white24, size: 20),
               ),
               const SizedBox(width: 12),
-              Text(title, style: TextStyle(fontFamily: 'MyFont2', fontSize: 15,
-                  fontWeight: FontWeight.w600,
+              Text(title, style: TextStyle(
+                  fontFamily: 'MyFont2', fontSize: 15, fontWeight: FontWeight.w600,
                   color: isNotificationEnabled ? Colors.white : Colors.white38)),
               const Spacer(),
             ],
@@ -160,7 +167,8 @@ class _NotificationsPageState extends State<NotificationsPage> {
               Icon(Icons.volume_up_outlined, size: 16,
                   color: isNotificationEnabled ? Colors.white38 : Colors.white12),
               const SizedBox(width: 8),
-              Text(_lang.t('ezan_sound'), style: TextStyle(fontFamily: 'MyFont2', fontSize: 13,
+              Text(_lang.t('ezan_sound'), style: TextStyle(
+                  fontFamily: 'MyFont2', fontSize: 13,
                   color: isNotificationEnabled ? Colors.white54 : Colors.white24)),
               const Spacer(),
               _darkSwitch(
@@ -185,9 +193,7 @@ class _NotificationsPageState extends State<NotificationsPage> {
     return Transform.scale(
       scale: 0.85,
       child: Switch(
-        value: value,
-        onChanged: onChanged,
-        activeColor: activeColor,
+        value: value, onChanged: onChanged, activeColor: activeColor,
         activeTrackColor: activeColor.withOpacity(0.3),
         inactiveThumbColor: Colors.white24,
         inactiveTrackColor: Colors.white10,
@@ -197,14 +203,16 @@ class _NotificationsPageState extends State<NotificationsPage> {
 
   @override
   Widget build(BuildContext context) {
+    final theme = _appThemes.current;
+
     return Scaffold(
-      backgroundColor: const Color(0xFF080E1A),
+      backgroundColor: theme.background,
       body: Stack(
         children: [
           Positioned(top: -60, right: -40,
             child: Container(width: 220, height: 220,
               decoration: BoxDecoration(shape: BoxShape.circle,
-                  gradient: RadialGradient(colors: [const Color(0xFF4ECDC4).withOpacity(0.08), Colors.transparent])),
+                  gradient: RadialGradient(colors: [theme.primary.withOpacity(0.08), Colors.transparent])),
             ),
           ),
           SafeArea(
@@ -219,13 +227,13 @@ class _NotificationsPageState extends State<NotificationsPage> {
                         icon: const Icon(Icons.arrow_back_ios_rounded, color: Colors.white70, size: 20),
                       ),
                       Text(_lang.t('notification_settings'),
-                          style: const TextStyle(fontSize: 18, fontFamily: 'MyFont2',
+                          style: const TextStyle(
+                              fontSize: 18, fontFamily: 'MyFont2',
                               fontWeight: FontWeight.bold, color: Colors.white)),
                     ],
                   ),
                 ),
                 const SizedBox(height: 8),
-
                 Expanded(
                   child: ListView(
                     padding: const EdgeInsets.symmetric(horizontal: 20),
@@ -235,11 +243,11 @@ class _NotificationsPageState extends State<NotificationsPage> {
                         padding: const EdgeInsets.all(18),
                         decoration: BoxDecoration(
                           borderRadius: BorderRadius.circular(20),
-                          gradient: const LinearGradient(
+                          gradient: LinearGradient(
                             begin: Alignment.topLeft, end: Alignment.bottomRight,
-                            colors: [Color(0xFF1A3A4A), Color(0xFF0F2235)],
+                            colors: [theme.cardGradientStart, theme.cardGradientEnd],
                           ),
-                          border: Border.all(color: const Color(0xFF4ECDC4).withOpacity(0.18)),
+                          border: Border.all(color: theme.primary.withOpacity(0.18)),
                         ),
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
@@ -248,14 +256,15 @@ class _NotificationsPageState extends State<NotificationsPage> {
                               Container(
                                 padding: const EdgeInsets.all(8),
                                 decoration: BoxDecoration(
-                                  color: const Color(0xFF4ECDC4).withOpacity(0.15),
+                                  color: theme.primary.withOpacity(0.15),
                                   borderRadius: BorderRadius.circular(10),
                                 ),
-                                child: const Icon(Icons.volume_up_rounded, color: Color(0xFF4ECDC4), size: 20),
+                                child: Icon(Icons.volume_up_rounded, color: theme.primary, size: 20),
                               ),
                               const SizedBox(width: 12),
                               Text(_lang.t('select_ezan'),
-                                  style: const TextStyle(fontSize: 15, fontWeight: FontWeight.bold,
+                                  style: const TextStyle(
+                                      fontSize: 15, fontWeight: FontWeight.bold,
                                       fontFamily: 'MyFont2', color: Colors.white)),
                             ]),
                             const SizedBox(height: 14),
@@ -267,17 +276,25 @@ class _NotificationsPageState extends State<NotificationsPage> {
                                   margin: const EdgeInsets.only(bottom: 8),
                                   padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
                                   decoration: BoxDecoration(
-                                    color: isSelected ? const Color(0xFF4ECDC4).withOpacity(0.12) : Colors.white.withOpacity(0.04),
+                                    color: isSelected
+                                        ? theme.primary.withOpacity(0.12)
+                                        : Colors.white.withOpacity(0.04),
                                     borderRadius: BorderRadius.circular(12),
                                     border: Border.all(
-                                        color: isSelected ? const Color(0xFF4ECDC4).withOpacity(0.4) : Colors.white12),
+                                        color: isSelected
+                                            ? theme.primary.withOpacity(0.4)
+                                            : Colors.white12),
                                   ),
                                   child: Row(
                                     children: [
-                                      Icon(isSelected ? Icons.radio_button_checked_rounded : Icons.radio_button_off_rounded,
-                                          color: isSelected ? const Color(0xFF4ECDC4) : Colors.white24, size: 18),
+                                      Icon(
+                                          isSelected
+                                              ? Icons.radio_button_checked_rounded
+                                              : Icons.radio_button_off_rounded,
+                                          color: isSelected ? theme.primary : Colors.white24, size: 18),
                                       const SizedBox(width: 10),
-                                      Text(sound['name']!, style: TextStyle(fontFamily: 'MyFont2', fontSize: 13,
+                                      Text(sound['name']!, style: TextStyle(
+                                          fontFamily: 'MyFont2', fontSize: 13,
                                           color: isSelected ? Colors.white : Colors.white54)),
                                     ],
                                   ),
@@ -306,18 +323,18 @@ class _NotificationsPageState extends State<NotificationsPage> {
                                     child: Container(
                                       padding: const EdgeInsets.symmetric(vertical: 12),
                                       decoration: BoxDecoration(
-                                        color: const Color(0xFF4ECDC4).withOpacity(0.15),
+                                        color: theme.primary.withOpacity(0.15),
                                         borderRadius: BorderRadius.circular(12),
-                                        border: Border.all(color: const Color(0xFF4ECDC4).withOpacity(0.3)),
+                                        border: Border.all(color: theme.primary.withOpacity(0.3)),
                                       ),
                                       child: Row(
                                         mainAxisAlignment: MainAxisAlignment.center,
                                         children: [
-                                          const Icon(Icons.play_arrow_rounded, color: Color(0xFF4ECDC4), size: 20),
+                                          Icon(Icons.play_arrow_rounded, color: theme.primary, size: 20),
                                           const SizedBox(width: 6),
                                           Text(_lang.t('listen'),
-                                              style: const TextStyle(fontFamily: 'MyFont2',
-                                                  color: Color(0xFF4ECDC4), fontSize: 13)),
+                                              style: TextStyle(fontFamily: 'MyFont2',
+                                                  color: theme.primary, fontSize: 13)),
                                         ],
                                       ),
                                     ),
@@ -429,18 +446,18 @@ class _NotificationsPageState extends State<NotificationsPage> {
                               child: Container(
                                 padding: const EdgeInsets.symmetric(vertical: 13),
                                 decoration: BoxDecoration(
-                                  color: const Color(0xFF4ECDC4).withOpacity(0.1),
+                                  color: theme.primary.withOpacity(0.1),
                                   borderRadius: BorderRadius.circular(14),
-                                  border: Border.all(color: const Color(0xFF4ECDC4).withOpacity(0.3)),
+                                  border: Border.all(color: theme.primary.withOpacity(0.3)),
                                 ),
                                 child: Row(
                                   mainAxisAlignment: MainAxisAlignment.center,
                                   children: [
-                                    const Icon(Icons.notifications_active_outlined, color: Color(0xFF4ECDC4), size: 18),
+                                    Icon(Icons.notifications_active_outlined, color: theme.primary, size: 18),
                                     const SizedBox(width: 8),
                                     Text(_lang.t('enable_all'),
-                                        style: const TextStyle(fontFamily: 'MyFont2',
-                                            color: Color(0xFF4ECDC4), fontSize: 13)),
+                                        style: TextStyle(fontFamily: 'MyFont2',
+                                            color: theme.primary, fontSize: 13)),
                                   ],
                                 ),
                               ),

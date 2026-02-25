@@ -7,17 +7,14 @@ import 'package:namazvaktim/Pages/HomePage.dart';
 import 'package:namazvaktim/services/language_service.dart';
 import 'package:timezone/data/latest_all.dart' as tz;
 import 'services/notification_service.dart';
+import 'services/theme_service.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-
   tz.initializeTimeZones();
-
-  final notificationService = NotificationService();
   await NotificationService.initialize();
-
   await LanguageService().loadLanguage();
-
+  await AppThemes().loadTheme();
   runApp(const MyApp());
 }
 
@@ -30,27 +27,27 @@ class MyApp extends StatefulWidget {
 
 class _MyAppState extends State<MyApp> {
   final LanguageService _languageService = LanguageService();
+  final AppThemes _appThemes = AppThemes();
 
   @override
   void initState() {
     super.initState();
-    _languageService.addListener(_onLanguageChanged);
+    _languageService.addListener(_onChanged);
+    _appThemes.addListener(_onChanged);
   }
 
   @override
   void dispose() {
-    _languageService.removeListener(_onLanguageChanged);
+    _languageService.removeListener(_onChanged);
+    _appThemes.removeListener(_onChanged);
     super.dispose();
   }
 
-  void _onLanguageChanged() {
-    setState(() {});
-  }
+  void _onChanged() => setState(() {});
 
   @override
   Widget build(BuildContext context) {
     final isRTL = _languageService.isRTL;
-
     return MaterialApp(
       title: _languageService.t('app_name'),
       debugShowCheckedModeBanner: false,
@@ -78,6 +75,7 @@ class BNavBar extends StatefulWidget {
 class _BNavBarState extends State<BNavBar> {
   int _selectedIndex = 0;
   final LanguageService _lang = LanguageService();
+  final AppThemes _appThemes = AppThemes();
 
   final List<Widget> _pages = [
     const HomePage(),
@@ -89,55 +87,61 @@ class _BNavBarState extends State<BNavBar> {
   @override
   void initState() {
     super.initState();
-    _lang.addListener(_onLangChanged);
+    _lang.addListener(_onChanged);
+    _appThemes.addListener(_onChanged);
   }
 
   @override
   void dispose() {
-    _lang.removeListener(_onLangChanged);
+    _lang.removeListener(_onChanged);
+    _appThemes.removeListener(_onChanged);
     super.dispose();
   }
 
-  void _onLangChanged() => setState(() {});
-
-  void _onItemTapped(int index) {
-    setState(() => _selectedIndex = index);
-  }
+  void _onChanged() => setState(() {});
 
   @override
   Widget build(BuildContext context) {
-    SystemChrome.setSystemUIOverlayStyle(const SystemUiOverlayStyle(
+    final theme = _appThemes.current;
+
+    SystemChrome.setSystemUIOverlayStyle(SystemUiOverlayStyle(
       statusBarColor: Colors.transparent,
       statusBarIconBrightness: Brightness.light,
-      systemNavigationBarColor: Color(0xFF080E1A),
+      systemNavigationBarColor: theme.background,
       systemNavigationBarIconBrightness: Brightness.light,
     ));
 
     return Scaffold(
-      backgroundColor: const Color(0xFF080E1A),
+      backgroundColor: theme.background,
       body: _pages[_selectedIndex],
-      bottomNavigationBar: _buildNavBar(),
+      bottomNavigationBar: _buildNavBar(theme),
     );
   }
 
-  Widget _buildNavBar() {
+  Widget _buildNavBar(AppThemeData theme) {
     final items = [
-      _NavItem(icon: Icons.home_rounded, outlinedIcon: Icons.home_outlined, label: _lang.t('nav_home')),
-      _NavItem(icon: Icons.auto_awesome_rounded, outlinedIcon: Icons.auto_awesome_outlined, label: _lang.t('nav_days')),
-      _NavItem(icon: Icons.explore_rounded, outlinedIcon: Icons.explore_outlined, label: _lang.t('nav_qibla')),
-      _NavItem(icon: Icons.settings_rounded, outlinedIcon: Icons.settings_outlined, label: _lang.t('nav_settings')),
+      _NavItem(icon: Icons.home_rounded, outlinedIcon: Icons.home_outlined,
+          label: _lang.t('nav_home')),
+      _NavItem(icon: Icons.auto_awesome_rounded,
+          outlinedIcon: Icons.auto_awesome_outlined,
+          label: _lang.t('nav_days')),
+      _NavItem(icon: Icons.explore_rounded,
+          outlinedIcon: Icons.explore_outlined, label: _lang.t('nav_qibla')),
+      _NavItem(icon: Icons.settings_rounded,
+          outlinedIcon: Icons.settings_outlined,
+          label: _lang.t('nav_settings')),
     ];
 
     return Container(
       decoration: BoxDecoration(
-        color: const Color(0xFF0D1B2A),
-        border: Border(top: BorderSide(color: Colors.white.withOpacity(0.07), width: 1)),
+        color: theme.surface,
+        border: Border(
+            top: BorderSide(color: Colors.white.withOpacity(0.07), width: 1)),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.4),
-            blurRadius: 20,
-            offset: const Offset(0, -4),
-          ),
+              color: Colors.black.withOpacity(0.4),
+              blurRadius: 20,
+              offset: const Offset(0, -4)),
         ],
       ),
       child: SafeArea(
@@ -149,21 +153,22 @@ class _BNavBarState extends State<BNavBar> {
             children: List.generate(items.length, (index) {
               final item = items[index];
               final isSelected = _selectedIndex == index;
-
               return GestureDetector(
-                onTap: () => _onItemTapped(index),
+                onTap: () => setState(() => _selectedIndex = index),
                 behavior: HitTestBehavior.opaque,
                 child: AnimatedContainer(
                   duration: const Duration(milliseconds: 250),
                   curve: Curves.easeOut,
-                  padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+                  padding: const EdgeInsets.symmetric(
+                      horizontal: 14, vertical: 8),
                   decoration: BoxDecoration(
                     color: isSelected
-                        ? const Color(0xFF4ECDC4).withOpacity(0.12)
+                        ? theme.primary.withOpacity(0.12)
                         : Colors.transparent,
                     borderRadius: BorderRadius.circular(16),
                     border: isSelected
-                        ? Border.all(color: const Color(0xFF4ECDC4).withOpacity(0.25))
+                        ? Border.all(
+                        color: theme.primary.withOpacity(0.25))
                         : null,
                   ),
                   child: Column(
@@ -171,19 +176,23 @@ class _BNavBarState extends State<BNavBar> {
                     children: [
                       Icon(
                         isSelected ? item.icon : item.outlinedIcon,
-                        color: isSelected ? const Color(0xFF4ECDC4) : Colors.white30,
+                        color: isSelected
+                            ? theme.primary
+                            : Colors.white30,
                         size: 22,
                       ),
                       const SizedBox(height: 4),
-                      Text(
-                        item.label,
-                        style: TextStyle(
-                          fontFamily: 'MyFont2',
-                          fontSize: 10,
-                          color: isSelected ? const Color(0xFF4ECDC4) : Colors.white30,
-                          fontWeight: isSelected ? FontWeight.w600 : FontWeight.w400,
-                        ),
-                      ),
+                      Text(item.label,
+                          style: TextStyle(
+                            fontFamily: 'MyFont2',
+                            fontSize: 10,
+                            color: isSelected
+                                ? theme.primary
+                                : Colors.white30,
+                            fontWeight: isSelected
+                                ? FontWeight.w600
+                                : FontWeight.w400,
+                          )),
                     ],
                   ),
                 ),
@@ -201,9 +210,8 @@ class _NavItem {
   final IconData outlinedIcon;
   final String label;
 
-  const _NavItem({
-    required this.icon,
-    required this.outlinedIcon,
-    required this.label,
-  });
+  const _NavItem(
+      {required this.icon,
+        required this.outlinedIcon,
+        required this.label});
 }

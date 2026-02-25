@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:namazvaktim/services/language_service.dart';
+import 'package:namazvaktim/services/theme_service.dart';
 
 class ReportBugPage extends StatefulWidget {
   const ReportBugPage({super.key});
@@ -13,30 +14,32 @@ class ReportBugPage extends StatefulWidget {
 
 class _ReportBugPageState extends State<ReportBugPage> {
   final LanguageService _lang = LanguageService();
+  final AppThemes _appThemes = AppThemes();
   final TextEditingController _descController = TextEditingController();
   bool _sending = false;
   String? _resultMsg;
   bool _success = false;
   String _version = '';
 
-
   static const String _supportEmail = 'aydinbagirov219@gmail.com';
 
   @override
   void initState() {
     super.initState();
-    _lang.addListener(_onLangChanged);
+    _lang.addListener(_onChanged);
+    _appThemes.addListener(_onChanged);
     _loadVersion();
   }
 
   @override
   void dispose() {
-    _lang.removeListener(_onLangChanged);
+    _lang.removeListener(_onChanged);
+    _appThemes.removeListener(_onChanged);
     _descController.dispose();
     super.dispose();
   }
 
-  void _onLangChanged() => setState(() {});
+  void _onChanged() => setState(() {});
 
   Future<void> _loadVersion() async {
     final info = await PackageInfo.fromPlatform();
@@ -52,7 +55,8 @@ class _ReportBugPageState extends State<ReportBugPage> {
               style: const TextStyle(fontFamily: 'MyFont2')),
           backgroundColor: const Color(0xFFFF6B6B),
           behavior: SnackBarBehavior.floating,
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+          shape:
+          RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
         ),
       );
       return;
@@ -94,18 +98,23 @@ class _ReportBugPageState extends State<ReportBugPage> {
 
   @override
   Widget build(BuildContext context) {
+    final theme = _appThemes.current;
+
     return Scaffold(
-      backgroundColor: const Color(0xFF080E1A),
+      backgroundColor: theme.background,
       body: Stack(
         children: [
+          // Glow — sabit qırmızı əvəzinə tema rəngi
           Positioned(
-            top: -50, right: -40,
+            top: -50,
+            right: -40,
             child: Container(
-              width: 180, height: 180,
+              width: 180,
+              height: 180,
               decoration: BoxDecoration(
                 shape: BoxShape.circle,
                 gradient: RadialGradient(colors: [
-                  const Color(0xFFFF6B6B).withOpacity(0.08),
+                  theme.primary.withOpacity(0.10),
                   Colors.transparent,
                 ]),
               ),
@@ -115,7 +124,7 @@ class _ReportBugPageState extends State<ReportBugPage> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-
+                // Header
                 Padding(
                   padding: const EdgeInsets.fromLTRB(4, 8, 20, 0),
                   child: Row(
@@ -153,26 +162,27 @@ class _ReportBugPageState extends State<ReportBugPage> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-
+                        // Info kartı — tema rəngi ilə
                         Container(
                           width: double.infinity,
                           padding: const EdgeInsets.all(20),
                           decoration: BoxDecoration(
-                            color: const Color(0xFFFF6B6B).withOpacity(0.07),
+                            color: theme.primary.withOpacity(0.07),
                             borderRadius: BorderRadius.circular(20),
                             border: Border.all(
-                                color: const Color(0xFFFF6B6B).withOpacity(0.2)),
+                                color: theme.primary.withOpacity(0.2)),
                           ),
                           child: Row(
                             children: [
                               Container(
-                                width: 48, height: 48,
+                                width: 48,
+                                height: 48,
                                 decoration: BoxDecoration(
-                                  color: const Color(0xFFFF6B6B).withOpacity(0.15),
+                                  color: theme.primary.withOpacity(0.15),
                                   borderRadius: BorderRadius.circular(14),
                                 ),
-                                child: const Icon(Icons.bug_report_rounded,
-                                    color: Color(0xFFFF6B6B), size: 26),
+                                child: Icon(Icons.bug_report_rounded,
+                                    color: theme.primary, size: 26),
                               ),
                               const SizedBox(width: 16),
                               Expanded(
@@ -180,11 +190,11 @@ class _ReportBugPageState extends State<ReportBugPage> {
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
                                     Text(_lang.t('bug_title'),
-                                        style: const TextStyle(
+                                        style: TextStyle(
                                             fontFamily: 'MyFont2',
                                             fontSize: 15,
                                             fontWeight: FontWeight.bold,
-                                            color: Color(0xFFFF6B6B))),
+                                            color: theme.primary)),
                                     const SizedBox(height: 4),
                                     Text(_lang.t('bug_device_info'),
                                         style: const TextStyle(
@@ -200,13 +210,14 @@ class _ReportBugPageState extends State<ReportBugPage> {
 
                         const SizedBox(height: 20),
 
-
                         Text(_lang.t('bug_desc_label'),
                             style: const TextStyle(
                                 fontFamily: 'MyFont2',
                                 fontSize: 13,
                                 color: Colors.white60)),
                         const SizedBox(height: 8),
+
+                        // TextField
                         Container(
                           decoration: BoxDecoration(
                             color: Colors.white.withOpacity(0.04),
@@ -234,13 +245,14 @@ class _ReportBugPageState extends State<ReportBugPage> {
 
                         const SizedBox(height: 8),
 
-
+                        // Versiya & dil
                         Row(
                           children: [
                             const Icon(Icons.info_outline_rounded,
                                 color: Colors.white24, size: 14),
                             const SizedBox(width: 6),
-                            Text('$_version  ·  ${_lang.currentLanguage.toUpperCase()}',
+                            Text(
+                                '$_version  ·  ${_lang.currentLanguage.toUpperCase()}',
                                 style: const TextStyle(
                                     fontFamily: 'MyFont2',
                                     fontSize: 11,
@@ -250,30 +262,40 @@ class _ReportBugPageState extends State<ReportBugPage> {
 
                         const SizedBox(height: 24),
 
-
+                        // Göndər düyməsi — tema gradienti
                         SizedBox(
                           width: double.infinity,
                           child: GestureDetector(
                             onTap: _sending ? null : _sendReport,
-                            child: Container(
-                              padding: const EdgeInsets.symmetric(vertical: 16),
+                            child: AnimatedContainer(
+                              duration: const Duration(milliseconds: 300),
+                              padding:
+                              const EdgeInsets.symmetric(vertical: 16),
                               decoration: BoxDecoration(
                                 gradient: LinearGradient(
                                   colors: _sending
                                       ? [Colors.white12, Colors.white12]
-                                      : [
-                                    const Color(0xFFFF6B6B),
-                                    const Color(0xFFFF8E53),
-                                  ],
+                                      : [theme.primary, theme.accent],
                                 ),
                                 borderRadius: BorderRadius.circular(16),
+                                boxShadow: _sending
+                                    ? []
+                                    : [
+                                  BoxShadow(
+                                      color: theme.primary
+                                          .withOpacity(0.3),
+                                      blurRadius: 16,
+                                      offset: const Offset(0, 4))
+                                ],
                               ),
                               child: Center(
                                 child: _sending
                                     ? const SizedBox(
-                                    width: 20, height: 20,
+                                    width: 20,
+                                    height: 20,
                                     child: CircularProgressIndicator(
-                                        strokeWidth: 2, color: Colors.white))
+                                        strokeWidth: 2,
+                                        color: Colors.white))
                                     : Row(
                                   mainAxisSize: MainAxisSize.min,
                                   children: [
@@ -293,7 +315,7 @@ class _ReportBugPageState extends State<ReportBugPage> {
                           ),
                         ),
 
-
+                        // Nəticə mesajı
                         if (_resultMsg != null) ...[
                           const SizedBox(height: 16),
                           Container(
@@ -301,13 +323,14 @@ class _ReportBugPageState extends State<ReportBugPage> {
                             padding: const EdgeInsets.all(14),
                             decoration: BoxDecoration(
                               color: _success
-                                  ? const Color(0xFF4ECDC4).withOpacity(0.1)
+                                  ? theme.primary.withOpacity(0.1)
                                   : const Color(0xFFFF6B6B).withOpacity(0.1),
                               borderRadius: BorderRadius.circular(12),
                               border: Border.all(
                                 color: _success
-                                    ? const Color(0xFF4ECDC4).withOpacity(0.3)
-                                    : const Color(0xFFFF6B6B).withOpacity(0.3),
+                                    ? theme.primary.withOpacity(0.3)
+                                    : const Color(0xFFFF6B6B)
+                                    .withOpacity(0.3),
                               ),
                             ),
                             child: Text(_resultMsg!,
@@ -315,7 +338,7 @@ class _ReportBugPageState extends State<ReportBugPage> {
                                     fontFamily: 'MyFont2',
                                     fontSize: 13,
                                     color: _success
-                                        ? const Color(0xFF4ECDC4)
+                                        ? theme.primary
                                         : const Color(0xFFFF6B6B))),
                           ),
                         ],

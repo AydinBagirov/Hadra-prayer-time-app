@@ -6,6 +6,8 @@ import 'package:namazvaktim/location/location_service.dart';
 import 'package:namazvaktim/services/language_service.dart';
 import 'dart:convert';
 
+import '../services/theme_service.dart';
+
 class MapPickerPage extends StatefulWidget {
   final CityLocation? currentLocation;
 
@@ -22,6 +24,7 @@ class _MapPickerPageState extends State<MapPickerPage> {
   bool isLoading = false;
 
   final LanguageService _lang = LanguageService();
+  final AppThemes _appThemes = AppThemes();
 
   @override
   void initState() {
@@ -37,14 +40,16 @@ class _MapPickerPageState extends State<MapPickerPage> {
       selectedLocationName = _getCleanCityName(widget.currentLocation!.name);
     }
 
-    _lang.addListener(_onLangChanged);
+    _lang.addListener(_onChanged);
+    _appThemes.addListener(_onChanged);
   }
 
-  void _onLangChanged() => setState(() {});
+  void _onChanged() => setState(() {});
 
   @override
   void dispose() {
-    _lang.removeListener(_onLangChanged);
+    _lang.removeListener(_onChanged);
+    _appThemes.removeListener(_onChanged);
     mapController.dispose();
     super.dispose();
   }
@@ -111,10 +116,8 @@ class _MapPickerPageState extends State<MapPickerPage> {
     if (selectedPosition == null) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text(
-            _lang.t('map_select_prompt'),
-            style: const TextStyle(fontFamily: 'MyFont2'),
-          ),
+          content: Text(_lang.t('map_select_prompt'),
+              style: const TextStyle(fontFamily: 'MyFont2')),
           backgroundColor: Colors.orange,
         ),
       );
@@ -135,19 +138,17 @@ class _MapPickerPageState extends State<MapPickerPage> {
 
   @override
   Widget build(BuildContext context) {
+    final theme = _appThemes.current;
+
     return Scaffold(
       appBar: AppBar(
-        title: Text(
-          _lang.t('map_picker_title'),
-          style: const TextStyle(fontFamily: 'MyFont2'),
-        ),
-        backgroundColor: Colors.teal,
+        title: Text(_lang.t('map_picker_title'),
+            style: const TextStyle(fontFamily: 'MyFont2')),
+        backgroundColor: theme.primary,
         foregroundColor: Colors.white,
       ),
       body: Stack(
         children: [
-
-          // Harita
           FlutterMap(
             mapController: mapController,
             options: MapOptions(
@@ -169,45 +170,43 @@ class _MapPickerPageState extends State<MapPickerPage> {
                   markers: [
                     Marker(
                       point: selectedPosition!,
-                      width: 80,
-                      height: 80,
-                      child: const Icon(Icons.location_on, color: Colors.red, size: 50),
+                      width: 80, height: 80,
+                      child: Icon(Icons.location_on, color: theme.primary, size: 50),
                     ),
                   ],
                 ),
             ],
           ),
 
-          // Seçilen konum kartı
           Positioned(
             top: 16, left: 16, right: 16,
             child: Card(
               elevation: 4,
+              color: theme.surface,
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
               child: Padding(
                 padding: const EdgeInsets.all(16.0),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    Text(
-                      _lang.t('selected_location'),
-                      style: const TextStyle(fontSize: 12, color: Colors.grey, fontFamily: 'MyFont2'),
-                    ),
+                    Text(_lang.t('selected_location'),
+                        style: const TextStyle(fontSize: 12, color: Colors.white38, fontFamily: 'MyFont2')),
                     const SizedBox(height: 4),
                     Row(
                       children: [
                         if (isLoading) ...[
-                          const SizedBox(
+                          SizedBox(
                             width: 16, height: 16,
-                            child: CircularProgressIndicator(strokeWidth: 2),
+                            child: CircularProgressIndicator(strokeWidth: 2, color: theme.primary),
                           ),
                           const SizedBox(width: 8),
                         ],
                         Expanded(
-                          child: Text(
-                            selectedLocationName,
-                            style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold, fontFamily: 'MyFont2'),
-                          ),
+                          child: Text(selectedLocationName,
+                              style: const TextStyle(
+                                  fontSize: 16, fontWeight: FontWeight.bold,
+                                  fontFamily: 'MyFont2', color: Colors.white)),
                         ),
                       ],
                     ),
@@ -215,7 +214,7 @@ class _MapPickerPageState extends State<MapPickerPage> {
                       const SizedBox(height: 4),
                       Text(
                         '${selectedPosition!.latitude.toStringAsFixed(4)}, ${selectedPosition!.longitude.toStringAsFixed(4)}',
-                        style: const TextStyle(fontSize: 11, color: Colors.grey, fontFamily: 'MyFont2'),
+                        style: TextStyle(fontSize: 11, color: theme.primary, fontFamily: 'MyFont2'),
                       ),
                     ],
                   ],
@@ -224,7 +223,6 @@ class _MapPickerPageState extends State<MapPickerPage> {
             ),
           ),
 
-          // Alt butonlar
           Positioned(
             bottom: 16, left: 16, right: 16,
             child: Column(
@@ -262,30 +260,29 @@ class _MapPickerPageState extends State<MapPickerPage> {
                   label: Text(_lang.t('current_location'),
                       style: const TextStyle(fontFamily: 'MyFont2')),
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.white,
-                    foregroundColor: Colors.teal,
+                    backgroundColor: theme.surface,
+                    foregroundColor: theme.primary,
                     minimumSize: const Size(double.infinity, 50),
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                   ),
                 ),
-
                 const SizedBox(height: 8),
-
                 ElevatedButton.icon(
                   onPressed: selectedPosition != null && !isLoading ? _confirmLocation : null,
                   icon: const Icon(Icons.check),
                   label: Text(_lang.t('confirm'),
                       style: const TextStyle(fontFamily: 'MyFont2')),
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.teal,
+                    backgroundColor: theme.primary,
                     foregroundColor: Colors.white,
                     minimumSize: const Size(double.infinity, 50),
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                   ),
                 ),
               ],
             ),
           ),
 
-          // Zoom butonları
           Positioned(
             right: 16,
             top: MediaQuery.of(context).size.height / 2 - 60,
@@ -297,8 +294,8 @@ class _MapPickerPageState extends State<MapPickerPage> {
                     final zoom = mapController.camera.zoom;
                     mapController.move(mapController.camera.center, zoom + 1);
                   },
-                  backgroundColor: Colors.white,
-                  child: const Icon(Icons.add, color: Colors.teal),
+                  backgroundColor: theme.surface,
+                  child: Icon(Icons.add, color: theme.primary),
                 ),
                 const SizedBox(height: 8),
                 FloatingActionButton.small(
@@ -307,8 +304,8 @@ class _MapPickerPageState extends State<MapPickerPage> {
                     final zoom = mapController.camera.zoom;
                     mapController.move(mapController.camera.center, zoom - 1);
                   },
-                  backgroundColor: Colors.white,
-                  child: const Icon(Icons.remove, color: Colors.teal),
+                  backgroundColor: theme.surface,
+                  child: Icon(Icons.remove, color: theme.primary),
                 ),
               ],
             ),

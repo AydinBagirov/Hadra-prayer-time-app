@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:namazvaktim/services/language_service.dart';
+import 'package:namazvaktim/services/theme_service.dart';
 
 class ShareAppPage extends StatefulWidget {
   const ShareAppPage({super.key});
@@ -13,6 +14,7 @@ class ShareAppPage extends StatefulWidget {
 
 class _ShareAppPageState extends State<ShareAppPage> {
   final LanguageService _lang = LanguageService();
+  final AppThemes _appThemes = AppThemes();
 
   static const String _apkUrl =
       'https://github.com/AydinBagirov/Namaz-Vaxti/releases/tag/v2.5.0';
@@ -20,26 +22,30 @@ class _ShareAppPageState extends State<ShareAppPage> {
   @override
   void initState() {
     super.initState();
-    _lang.addListener(_onLangChanged);
+    _lang.addListener(_onChanged);
+    _appThemes.addListener(_onChanged);
   }
 
   @override
   void dispose() {
-    _lang.removeListener(_onLangChanged);
+    _lang.removeListener(_onChanged);
+    _appThemes.removeListener(_onChanged);
     super.dispose();
   }
 
-  void _onLangChanged() => setState(() {});
+  void _onChanged() => setState(() {});
 
   void _copyLink() {
     Clipboard.setData(const ClipboardData(text: _apkUrl));
+    final theme = _appThemes.current;
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: Text(_lang.t('share_link_copied'),
             style: const TextStyle(fontFamily: 'MyFont2')),
-        backgroundColor: const Color(0xFF4ECDC4),
+        backgroundColor: theme.primary,
         behavior: SnackBarBehavior.floating,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+        shape:
+        RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
         duration: const Duration(seconds: 2),
       ),
     );
@@ -65,10 +71,13 @@ class _ShareAppPageState extends State<ShareAppPage> {
 
   @override
   Widget build(BuildContext context) {
+    final theme = _appThemes.current;
+
     return Scaffold(
-      backgroundColor: const Color(0xFF080E1A),
+      backgroundColor: theme.background,
       body: Stack(
         children: [
+          // Glow — tema rəngi ilə
           Positioned(
             bottom: 60,
             right: -50,
@@ -78,7 +87,7 @@ class _ShareAppPageState extends State<ShareAppPage> {
               decoration: BoxDecoration(
                 shape: BoxShape.circle,
                 gradient: RadialGradient(colors: [
-                  const Color(0xFF80CBC4).withOpacity(0.08),
+                  theme.primary.withOpacity(0.08),
                   Colors.transparent,
                 ]),
               ),
@@ -88,6 +97,7 @@ class _ShareAppPageState extends State<ShareAppPage> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
+                // Header
                 Padding(
                   padding: const EdgeInsets.fromLTRB(4, 8, 20, 0),
                   child: Row(
@@ -122,19 +132,22 @@ class _ShareAppPageState extends State<ShareAppPage> {
                     padding: const EdgeInsets.symmetric(horizontal: 20),
                     child: Column(
                       children: [
+                        // App kartı — tema gradienti ilə
                         Container(
                           width: double.infinity,
                           padding: const EdgeInsets.all(24),
                           decoration: BoxDecoration(
                             borderRadius: BorderRadius.circular(24),
-                            gradient: const LinearGradient(
+                            gradient: LinearGradient(
                               begin: Alignment.topLeft,
                               end: Alignment.bottomRight,
-                              colors: [Color(0xFF1A3A4A), Color(0xFF0F2235)],
+                              colors: [
+                                theme.cardGradientStart,
+                                theme.cardGradientEnd,
+                              ],
                             ),
                             border: Border.all(
-                                color:
-                                const Color(0xFF4ECDC4).withOpacity(0.18)),
+                                color: theme.primary.withOpacity(0.18)),
                           ),
                           child: Column(
                             children: [
@@ -170,14 +183,12 @@ class _ShareAppPageState extends State<ShareAppPage> {
                                   padding: const EdgeInsets.symmetric(
                                       horizontal: 10, vertical: 4),
                                   decoration: BoxDecoration(
-                                    color:
-                                    Colors.white.withOpacity(0.06),
+                                    color: Colors.white.withOpacity(0.06),
                                     borderRadius:
                                     BorderRadius.circular(20),
                                   ),
                                   child: Text(e,
-                                      style: const TextStyle(
-                                          fontSize: 16)),
+                                      style: const TextStyle(fontSize: 16)),
                                 ))
                                     .toList(),
                               ),
@@ -185,15 +196,16 @@ class _ShareAppPageState extends State<ShareAppPage> {
                           ),
                         ),
                         const SizedBox(height: 20),
+
+                        // GitHub / APK kartı — tema rəngi ilə
                         Container(
                           width: double.infinity,
                           padding: const EdgeInsets.all(18),
                           decoration: BoxDecoration(
-                            color: const Color(0xFF80CBC4).withOpacity(0.06),
+                            color: theme.primary.withOpacity(0.06),
                             borderRadius: BorderRadius.circular(20),
                             border: Border.all(
-                                color:
-                                const Color(0xFF80CBC4).withOpacity(0.2)),
+                                color: theme.primary.withOpacity(0.2)),
                           ),
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
@@ -233,6 +245,7 @@ class _ShareAppPageState extends State<ShareAppPage> {
                                 ],
                               ),
                               const SizedBox(height: 14),
+                              // Link container — tema rəngi ilə
                               Container(
                                 padding: const EdgeInsets.symmetric(
                                     horizontal: 12, vertical: 10),
@@ -242,16 +255,16 @@ class _ShareAppPageState extends State<ShareAppPage> {
                                 ),
                                 child: Row(
                                   children: [
-                                    const Icon(Icons.link_rounded,
-                                        color: Color(0xFF4ECDC4), size: 14),
+                                    Icon(Icons.link_rounded,
+                                        color: theme.primary, size: 14),
                                     const SizedBox(width: 8),
                                     Expanded(
                                       child: Text(
                                         _apkUrl,
-                                        style: const TextStyle(
+                                        style: TextStyle(
                                             fontFamily: 'MyFont2',
                                             fontSize: 11,
-                                            color: Color(0xFF4ECDC4)),
+                                            color: theme.primary),
                                         overflow: TextOverflow.ellipsis,
                                       ),
                                     ),
@@ -263,6 +276,7 @@ class _ShareAppPageState extends State<ShareAppPage> {
                                 children: [
                                   Expanded(
                                     child: _actionButton(
+                                      theme: theme,
                                       icon: Icons.copy_rounded,
                                       label: _lang.t('share_apk_copy'),
                                       onTap: _copyLink,
@@ -272,6 +286,7 @@ class _ShareAppPageState extends State<ShareAppPage> {
                                   const SizedBox(width: 10),
                                   Expanded(
                                     child: _actionButton(
+                                      theme: theme,
                                       icon: Icons.open_in_new_rounded,
                                       label: _lang.t('share_apk_open'),
                                       onTap: _openGitHub,
@@ -284,16 +299,24 @@ class _ShareAppPageState extends State<ShareAppPage> {
                           ),
                         ),
                         const SizedBox(height: 14),
+
+                        // Paylaş düyməsi — tema gradienti
                         GestureDetector(
                           onTap: _shareViaApps,
                           child: Container(
                             width: double.infinity,
                             padding: const EdgeInsets.symmetric(vertical: 16),
                             decoration: BoxDecoration(
-                              gradient: const LinearGradient(
-                                colors: [Color(0xFF4ECDC4), Color(0xFF44A08D)],
+                              gradient: LinearGradient(
+                                colors: [theme.primary, theme.accent],
                               ),
                               borderRadius: BorderRadius.circular(16),
+                              boxShadow: [
+                                BoxShadow(
+                                    color: theme.primary.withOpacity(0.3),
+                                    blurRadius: 16,
+                                    offset: const Offset(0, 4))
+                              ],
                             ),
                             child: Row(
                               mainAxisAlignment: MainAxisAlignment.center,
@@ -324,6 +347,7 @@ class _ShareAppPageState extends State<ShareAppPage> {
   }
 
   Widget _actionButton({
+    required AppThemeData theme,
     required IconData icon,
     required String label,
     required VoidCallback onTap,
@@ -335,12 +359,12 @@ class _ShareAppPageState extends State<ShareAppPage> {
         padding: const EdgeInsets.symmetric(vertical: 11),
         decoration: BoxDecoration(
           color: isPrimary
-              ? const Color(0xFF4ECDC4).withOpacity(0.15)
+              ? theme.primary.withOpacity(0.15)
               : Colors.white.withOpacity(0.05),
           borderRadius: BorderRadius.circular(12),
           border: Border.all(
             color: isPrimary
-                ? const Color(0xFF4ECDC4).withOpacity(0.4)
+                ? theme.primary.withOpacity(0.4)
                 : Colors.white12,
           ),
         ),
@@ -348,17 +372,14 @@ class _ShareAppPageState extends State<ShareAppPage> {
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Icon(icon,
-                color: isPrimary ? const Color(0xFF4ECDC4) : Colors.white38,
-                size: 15),
+                color: isPrimary ? theme.primary : Colors.white38, size: 15),
             const SizedBox(width: 6),
             Text(label,
                 style: TextStyle(
                     fontFamily: 'MyFont2',
                     fontSize: 12,
                     fontWeight: FontWeight.w600,
-                    color: isPrimary
-                        ? const Color(0xFF4ECDC4)
-                        : Colors.white38)),
+                    color: isPrimary ? theme.primary : Colors.white38)),
           ],
         ),
       ),

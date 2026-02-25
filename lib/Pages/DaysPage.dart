@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:hijri_date/hijri.dart';
 import 'package:namazvaktim/services/language_service.dart';
+import '../services/theme_service.dart';
 
 class DaysPage extends StatefulWidget {
   const DaysPage({super.key});
@@ -12,36 +12,33 @@ class DaysPage extends StatefulWidget {
 class _DaysPageState extends State<DaysPage> {
   bool _isMiladi = true;
   final LanguageService _lang = LanguageService();
+  final AppThemes _appThemes = AppThemes();
 
   @override
   void initState() {
     super.initState();
-    _lang.addListener(_onLangChanged);
+    _lang.addListener(_onChanged);
+    _appThemes.addListener(_onChanged);
   }
 
   @override
   void dispose() {
-    _lang.removeListener(_onLangChanged);
+    _lang.removeListener(_onChanged);
+    _appThemes.removeListener(_onChanged);
     super.dispose();
   }
 
-  void _onLangChanged() => setState(() {});
-
-  String _getHijriMonthName(int month) {
-    return _lang.t('hijri_$month');
-  }
+  void _onChanged() => setState(() {});
 
   String _getDayName(String azDay) {
     final azDays = [
       'Bazar ertəsi', 'Çərşənbə ax.', 'Çərşənbə',
       'Cümə axşamı', 'Cümə', 'Şənbə', 'Bazar'
     ];
-
     final azDaysOld = [
       'Bazarertəsi', 'Çərşənbə axşamı', 'Çərşənbə',
       'Cümə axşamı', 'Cümə', 'Şənbə', 'Bazar'
     ];
-
     int idx = azDays.indexOf(azDay);
     if (idx == -1) idx = azDaysOld.indexOf(azDay);
     if (idx == -1) return azDay;
@@ -71,7 +68,6 @@ class _DaysPageState extends State<DaysPage> {
     final parts = hijriDate.split(' ');
     if (parts.length < 3) return hijriDate;
     final day = parts[0];
-
     final azHijriMonths = [
       'Məhərrəm', 'Səfər', 'Rəbiüləvvəl', 'Rəbiülaxır',
       'Cəmadiyələvvəl', 'Cəmadiyəlaxır', 'Rəcəb', 'Şaban',
@@ -83,7 +79,7 @@ class _DaysPageState extends State<DaysPage> {
     return '$day $monthName $year';
   }
 
-  Widget _toggleWidget() {
+  Widget _toggleWidget(AppThemeData theme) {
     return GestureDetector(
       onTap: () => setState(() => _isMiladi = !_isMiladi),
       child: Container(
@@ -103,9 +99,9 @@ class _DaysPageState extends State<DaysPage> {
                 width: 70, height: 36,
                 margin: const EdgeInsets.all(2),
                 decoration: BoxDecoration(
-                  color: const Color(0xFF4ECDC4).withOpacity(0.25),
+                  color: theme.primary.withOpacity(0.25),
                   borderRadius: BorderRadius.circular(18),
-                  border: Border.all(color: const Color(0xFF4ECDC4).withOpacity(0.5)),
+                  border: Border.all(color: theme.primary.withOpacity(0.5)),
                 ),
               ),
             ),
@@ -114,17 +110,19 @@ class _DaysPageState extends State<DaysPage> {
                 Expanded(
                   child: Center(
                     child: Text(_lang.t('miladi'),
-                        style: TextStyle(fontFamily: 'MyFont2', fontSize: 12,
+                        style: TextStyle(
+                            fontFamily: 'MyFont2', fontSize: 12,
                             fontWeight: FontWeight.bold,
-                            color: _isMiladi ? const Color(0xFF4ECDC4) : Colors.white38)),
+                            color: _isMiladi ? theme.primary : Colors.white38)),
                   ),
                 ),
                 Expanded(
                   child: Center(
                     child: Text(_lang.t('hijri'),
-                        style: TextStyle(fontFamily: 'MyFont2', fontSize: 12,
+                        style: TextStyle(
+                            fontFamily: 'MyFont2', fontSize: 12,
                             fontWeight: FontWeight.bold,
-                            color: !_isMiladi ? const Color(0xFF4ECDC4) : Colors.white38)),
+                            color: !_isMiladi ? theme.primary : Colors.white38)),
                   ),
                 ),
               ],
@@ -135,7 +133,7 @@ class _DaysPageState extends State<DaysPage> {
     );
   }
 
-  Widget _diniGunCard(String adAz, String gunAz, String hicriAz, String miladiAz) {
+  Widget _diniGunCard(AppThemeData theme, String adAz, String gunAz, String hicriAz, String miladiAz) {
     final translatedDay = _getDayName(gunAz);
     final translatedMiladi = _translateMiladiDate(miladiAz);
     final translatedHijri = _translateHijriDate(hicriAz);
@@ -154,11 +152,11 @@ class _DaysPageState extends State<DaysPage> {
           Container(
             width: 38, height: 38,
             decoration: BoxDecoration(
-              color: const Color(0xFF4ECDC4).withOpacity(0.12),
+              color: theme.primary.withOpacity(0.12),
               borderRadius: BorderRadius.circular(11),
-              border: Border.all(color: const Color(0xFF4ECDC4).withOpacity(0.2)),
+              border: Border.all(color: theme.primary.withOpacity(0.2)),
             ),
-            child: const Icon(Icons.nightlight_round_sharp, color: Color(0xFF4ECDC4), size: 18),
+            child: Icon(Icons.nightlight_round_sharp, color: theme.primary, size: 18),
           ),
           const SizedBox(width: 14),
           Expanded(
@@ -166,7 +164,8 @@ class _DaysPageState extends State<DaysPage> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(adAz,
-                    style: const TextStyle(fontFamily: 'MyFont2', fontSize: 14,
+                    style: const TextStyle(
+                        fontFamily: 'MyFont2', fontSize: 14,
                         fontWeight: FontWeight.w600, color: Colors.white),
                     overflow: TextOverflow.ellipsis),
                 const SizedBox(height: 3),
@@ -175,7 +174,8 @@ class _DaysPageState extends State<DaysPage> {
                     Flexible(
                       child: Text(translatedDay,
                           overflow: TextOverflow.ellipsis,
-                          style: const TextStyle(fontFamily: 'MyFont2', fontSize: 12, color: Colors.white38)),
+                          style: const TextStyle(
+                              fontFamily: 'MyFont2', fontSize: 12, color: Colors.white38)),
                     ),
                     Container(
                       margin: const EdgeInsets.symmetric(horizontal: 6),
@@ -183,12 +183,11 @@ class _DaysPageState extends State<DaysPage> {
                       decoration: const BoxDecoration(shape: BoxShape.circle, color: Colors.white24),
                     ),
                     Flexible(
-                      child: Text(
-                        dateText,
-                        overflow: TextOverflow.ellipsis,
-                        style: const TextStyle(fontFamily: 'MyFont2', fontSize: 12,
-                            color: Color(0xFF4ECDC4), fontWeight: FontWeight.w500),
-                      ),
+                      child: Text(dateText,
+                          overflow: TextOverflow.ellipsis,
+                          style: TextStyle(
+                              fontFamily: 'MyFont2', fontSize: 12,
+                              color: theme.primary, fontWeight: FontWeight.w500)),
                     ),
                   ],
                 ),
@@ -202,20 +201,22 @@ class _DaysPageState extends State<DaysPage> {
 
   @override
   Widget build(BuildContext context) {
+    final theme = _appThemes.current;
+
     return Scaffold(
-      backgroundColor: const Color(0xFF080E1A),
+      backgroundColor: theme.background,
       body: Stack(
         children: [
           Positioned(top: -60, right: -40,
             child: Container(width: 220, height: 220,
               decoration: BoxDecoration(shape: BoxShape.circle,
-                  gradient: RadialGradient(colors: [const Color(0xFF4ECDC4).withOpacity(0.08), Colors.transparent])),
+                  gradient: RadialGradient(colors: [theme.primary.withOpacity(0.08), Colors.transparent])),
             ),
           ),
           Positioned(bottom: 80, left: -60,
             child: Container(width: 160, height: 160,
               decoration: BoxDecoration(shape: BoxShape.circle,
-                  gradient: RadialGradient(colors: [const Color(0xFF5B9BD5).withOpacity(0.06), Colors.transparent])),
+                  gradient: RadialGradient(colors: [theme.accent.withOpacity(0.06), Colors.transparent])),
             ),
           ),
           SafeArea(
@@ -227,53 +228,51 @@ class _DaysPageState extends State<DaysPage> {
                     children: [
                       Expanded(
                         child: Text(_lang.t('religious_days'),
-                            style: const TextStyle(fontSize: 20, fontFamily: 'MyFont2',
+                            style: const TextStyle(
+                                fontSize: 20, fontFamily: 'MyFont2',
                                 fontWeight: FontWeight.bold, color: Colors.white),
                             overflow: TextOverflow.ellipsis),
                       ),
                       const SizedBox(width: 8),
-                      _toggleWidget(),
+                      _toggleWidget(theme),
                     ],
                   ),
                 ),
-
                 const SizedBox(height: 16),
-
                 Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 20),
                   child: Row(children: [
                     Text(_lang.t('year_range'),
-                        style: const TextStyle(fontFamily: 'MyFont2', fontSize: 12,
+                        style: const TextStyle(
+                            fontFamily: 'MyFont2', fontSize: 12,
                             color: Colors.white38, letterSpacing: 0.6)),
                     const SizedBox(width: 10),
                     Expanded(child: Container(height: 1, color: Colors.white.withOpacity(0.06))),
                   ]),
                 ),
-
                 const SizedBox(height: 10),
-
                 Expanded(
                   child: ListView(
                     padding: const EdgeInsets.only(bottom: 24),
                     children: [
-                      _diniGunCard(_lang.t('hd_mirac'), "Cümə axşamı", "26 Rəcəb 1447", "15 Yanvar 2026"),
-                      _diniGunCard(_lang.t('hd_berat'), "Bazarertəsi", "14 Şaban 1447", "2 Fevral 2026"),
-                      _diniGunCard(_lang.t('hd_ramazan_start'), "Cümə axşamı", "1 Ramazan 1447", "19 Fevral 2026"),
-                      _diniGunCard(_lang.t('hd_qadr'), "Bazarertəsi", "26 Ramazan 1447", "16 Mart 2026"),
-                      _diniGunCard(_lang.t('hd_eid_fitr_1'), "Cümə", "1 Şəvval 1447", "20 Mart 2026"),
-                      _diniGunCard(_lang.t('hd_eid_fitr_2'), "Şənbə", "2 Şəvval 1447", "21 Mart 2026"),
-                      _diniGunCard(_lang.t('hd_eid_fitr_3'), "Bazar", "3 Şəvval 1447", "22 Mart 2026"),
-                      _diniGunCard(_lang.t('hd_terviye'), "Bazarertəsi", "8 Zilhiccə 1447", "25 May 2026"),
-                      _diniGunCard(_lang.t('hd_arefe'), "Çərşənbə axşamı", "9 Zilhiccə 1447", "26 May 2026"),
-                      _diniGunCard(_lang.t('hd_eid_adha_1'), "Çərşənbə", "10 Zilhiccə 1447", "27 May 2026"),
-                      _diniGunCard(_lang.t('hd_eid_adha_2'), "Cümə axşamı", "11 Zilhiccə 1447", "28 May 2026"),
-                      _diniGunCard(_lang.t('hd_eid_adha_3'), "Cümə", "12 Zilhiccə 1447", "29 May 2026"),
-                      _diniGunCard(_lang.t('hd_eid_adha_4'), "Şənbə", "13 Zilhiccə 1447", "30 May 2026"),
-                      _diniGunCard(_lang.t('hd_hijri_new_year'), "Çərşənbə axşamı", "1 Muharrəm 1448", "16 İyun 2026"),
-                      _diniGunCard(_lang.t('hd_ashura'), "Cümə axşamı", "10 Muharrəm 1448", "25 İyun 2026"),
-                      _diniGunCard(_lang.t('hd_mawlid'), "Bazarertəsi", "11 Rəbüiləvvəl 1448", "24 Avqust 2026"),
-                      _diniGunCard(_lang.t('hd_three_months'), "Cümə axşamı", "1 Rəcəb 1448", "10 Dekabr 2026"),
-                      _diniGunCard(_lang.t('hd_ragaib'), "Cümə axşamı", "1 Rəcəb 1448", "10 Dekabr 2026"),
+                      _diniGunCard(theme, _lang.t('hd_mirac'), "Cümə axşamı", "26 Rəcəb 1447", "15 Yanvar 2026"),
+                      _diniGunCard(theme, _lang.t('hd_berat'), "Bazarertəsi", "14 Şaban 1447", "2 Fevral 2026"),
+                      _diniGunCard(theme, _lang.t('hd_ramazan_start'), "Cümə axşamı", "1 Ramazan 1447", "19 Fevral 2026"),
+                      _diniGunCard(theme, _lang.t('hd_qadr'), "Bazarertəsi", "26 Ramazan 1447", "16 Mart 2026"),
+                      _diniGunCard(theme, _lang.t('hd_eid_fitr_1'), "Cümə", "1 Şəvval 1447", "20 Mart 2026"),
+                      _diniGunCard(theme, _lang.t('hd_eid_fitr_2'), "Şənbə", "2 Şəvval 1447", "21 Mart 2026"),
+                      _diniGunCard(theme, _lang.t('hd_eid_fitr_3'), "Bazar", "3 Şəvval 1447", "22 Mart 2026"),
+                      _diniGunCard(theme, _lang.t('hd_terviye'), "Bazarertəsi", "8 Zilhiccə 1447", "25 May 2026"),
+                      _diniGunCard(theme, _lang.t('hd_arefe'), "Çərşənbə axşamı", "9 Zilhiccə 1447", "26 May 2026"),
+                      _diniGunCard(theme, _lang.t('hd_eid_adha_1'), "Çərşənbə", "10 Zilhiccə 1447", "27 May 2026"),
+                      _diniGunCard(theme, _lang.t('hd_eid_adha_2'), "Cümə axşamı", "11 Zilhiccə 1447", "28 May 2026"),
+                      _diniGunCard(theme, _lang.t('hd_eid_adha_3'), "Cümə", "12 Zilhiccə 1447", "29 May 2026"),
+                      _diniGunCard(theme, _lang.t('hd_eid_adha_4'), "Şənbə", "13 Zilhiccə 1447", "30 May 2026"),
+                      _diniGunCard(theme, _lang.t('hd_hijri_new_year'), "Çərşənbə axşamı", "1 Muharrəm 1448", "16 İyun 2026"),
+                      _diniGunCard(theme, _lang.t('hd_ashura'), "Cümə axşamı", "10 Muharrəm 1448", "25 İyun 2026"),
+                      _diniGunCard(theme, _lang.t('hd_mawlid'), "Bazarertəsi", "11 Rəbüiləvvəl 1448", "24 Avqust 2026"),
+                      _diniGunCard(theme, _lang.t('hd_three_months'), "Cümə axşamı", "1 Rəcəb 1448", "10 Dekabr 2026"),
+                      _diniGunCard(theme, _lang.t('hd_ragaib'), "Cümə axşamı", "1 Rəcəb 1448", "10 Dekabr 2026"),
                     ],
                   ),
                 ),
