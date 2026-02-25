@@ -1129,7 +1129,7 @@ class Translations {
       'map_select': 'Von Karte auswählen', 'map_precise': 'Genaue Koordinaten',
       'select_city': 'Stadt auswählen',
 
-      'religious_days': 'Islamische Festtage', 'miladi': 'Gregorianisch',
+      'religious_days': 'Islamische Festtage', 'miladi': 'Miladi',
       'hijri': 'Hijri', 'year_range': '2025 – 2026',
 
       'hd_mirac': 'Nacht der Himmelfahrt (Miraj)',
@@ -1166,7 +1166,7 @@ class Translations {
       'share_app': 'App teilen', 'parameters': 'Optionen',
       'select_language': 'Sprache auswählen',
 
-      'notification_settings': 'Benachrichtigungseinstellungen',
+      'notification_settings': 'Benachrichtigungseinstellung...',
       'select_ezan': 'Adhan-Ton auswählen', 'default_ezan': 'Standard-Adhan',
       'notification_only': 'Nur Benachrichtigungston',
       'listen': 'Anhören', 'stop': 'Stopp',
