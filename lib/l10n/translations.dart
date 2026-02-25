@@ -1,7 +1,7 @@
 class Translations {
   static const Map<String, Map<String, String>> all = {
     'az': {
-      'app_name': 'Namaz Vaxtı',
+      'app_name': 'Hadra',
       'loading': 'Yüklənir...',
       'error': 'Xəta',
       'retry': 'Yenidən cəhd et',
@@ -52,7 +52,7 @@ class Translations {
 
 
       'hd_mirac': 'Miraç Kandili',
-      'hd_berat': 'Berat Kandili',
+      'hd_berat': 'Bərat Kandili',
       'hd_ramazan_start': 'Ramazan Başlanğıcı',
       'hd_qadr': 'Qədr Gecəsi',
       'hd_eid_fitr_1': 'Ramazan Bayramı 1.günü',
@@ -66,7 +66,7 @@ class Translations {
       'hd_eid_adha_4': 'Qurban Bayramı 4.günü',
       'hd_hijri_new_year': 'Hicri Yeni il günü',
       'hd_ashura': 'Aşura Günü',
-      'hd_mawlid': 'Mevlid Kandili',
+      'hd_mawlid': 'Məvlid Kandili',
       'hd_three_months': 'Üç Aylar Başlanğıcı',
       'hd_ragaib': 'Rəğaib Kandili',
 
@@ -149,7 +149,7 @@ class Translations {
     },
 
     'tr': {
-      'app_name': 'Namaz Vakti',
+      'app_name': 'Hadra',
       'loading': 'Yükleniyor...', 'error': 'Hata', 'retry': 'Tekrar dene',
       'confirm': 'Onayla', 'cancel': 'İptal', 'close': 'Kapat',
       'save': 'Kaydet', 'settings': 'Ayarlar', 'version': 'Sürüm',
@@ -286,7 +286,7 @@ class Translations {
     },
 
     'en': {
-      'app_name': 'My Prayer Times',
+      'app_name': 'Hadra',
       'loading': 'Loading...', 'error': 'Error', 'retry': 'Try again',
       'confirm': 'Confirm', 'cancel': 'Cancel', 'close': 'Close',
       'save': 'Save', 'settings': 'Settings', 'version': 'Version',
@@ -322,7 +322,7 @@ class Translations {
       'map_select': 'Pick from map', 'map_precise': 'Precise coordinates',
       'select_city': 'Select city',
 
-      'religious_days': 'Holy Days', 'miladi': 'Gregorian',
+      'religious_days': 'Holy Days', 'miladi': 'Miladi',
       'hijri': 'Hijri', 'year_range': '2025 – 2026',
 
 
@@ -423,7 +423,7 @@ class Translations {
     },
 
     'fa': {
-      'app_name': 'اوقات نماز من',
+      'app_name': 'حضره',
       'loading': 'در حال بارگذاری...', 'error': 'خطا', 'retry': 'تلاش مجدد',
       'confirm': 'تأیید', 'cancel': 'لغو', 'close': 'بستن',
       'save': 'ذخیره', 'settings': 'تنظیمات', 'version': 'نسخه',
@@ -560,7 +560,7 @@ class Translations {
     },
 
     'ar': {
-      'app_name': 'أوقات صلاتي',
+      'app_name': 'حضرة',
       'loading': 'جاري التحميل...', 'error': 'خطأ', 'retry': 'حاول مجدداً',
       'confirm': 'تأكيد', 'cancel': 'إلغاء', 'close': 'إغلاق',
       'save': 'حفظ', 'settings': 'الإعدادات', 'version': 'الإصدار',
@@ -696,7 +696,7 @@ class Translations {
     },
 
     'id': {
-      'app_name': 'Waktu Shalat',
+      'app_name': 'Hadra',
       'loading': 'Memuat...', 'error': 'Kesalahan', 'retry': 'Coba lagi',
       'confirm': 'Konfirmasi', 'cancel': 'Batal', 'close': 'Tutup',
       'save': 'Simpan', 'settings': 'Pengaturan', 'version': 'Versi',
