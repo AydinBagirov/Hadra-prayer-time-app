@@ -94,16 +94,14 @@ class _SettingsPageState extends State<SettingsPage> {
                             ),
                           ),
                           child: Directionality(
-                            textDirection: isRTL ? TextDirection.rtl : TextDirection.ltr,
+                            textDirection: TextDirection.ltr,
                             child: Row(
                               children: [
                                 Text(lang['flag']!, style: const TextStyle(fontSize: 22)),
                                 const SizedBox(width: 12),
                                 Expanded(
                                   child: Column(
-                                    crossAxisAlignment: isRTL
-                                        ? CrossAxisAlignment.end
-                                        : CrossAxisAlignment.start,
+                                    crossAxisAlignment: CrossAxisAlignment.start,
                                     children: [
                                       Text(
                                         lang['nativeName']!,

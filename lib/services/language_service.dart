@@ -9,7 +9,7 @@ class LanguageService extends ChangeNotifier {
 
   String get currentLanguage => _currentLanguage;
 
-  bool get isRTL => _currentLanguage == 'ar' || _currentLanguage == 'fa';
+  bool get isRTL => false;
 
   static final LanguageService _instance = LanguageService._internal();
   factory LanguageService() => _instance;
@@ -34,11 +34,21 @@ class LanguageService extends ChangeNotifier {
   }
 
   static const List<Map<String, String>> availableLanguages = [
+    {'code': 'en', 'name': 'English', 'nativeName': 'English', 'flag': '🇬🇧'},
     {'code': 'az', 'name': 'Azərbaycan dili', 'nativeName': 'Azərbaycan', 'flag': '🇦🇿'},
     {'code': 'tr', 'name': 'Türkçe', 'nativeName': 'Türkçe', 'flag': '🇹🇷'},
-    {'code': 'en', 'name': 'English', 'nativeName': 'English', 'flag': '🇬🇧'},
+    {'code': 'ru', 'name': 'Русский', 'nativeName': 'Русский', 'flag': '🇷🇺'},
+    {'code': 'fr', 'name': 'Français', 'nativeName': 'Français', 'flag': '🇫🇷'},
+    {'code': 'de', 'name': 'Deutsch', 'nativeName': 'Deutsch', 'flag': '🇩🇪'},
+    {'code': 'es', 'name': 'Español', 'nativeName': 'Español', 'flag': '🇪🇸'},
     {'code': 'fa', 'name': 'فارسی', 'nativeName': 'فارسی', 'flag': '🇮🇷'},
     {'code': 'ar', 'name': 'العربية', 'nativeName': 'العربية', 'flag': '🇸🇦'},
     {'code': 'id', 'name': 'Bahasa Indonesia', 'nativeName': 'Indonesia', 'flag': '🇮🇩'},
+    {'code': 'ko', 'name': '한국어', 'nativeName': '한국어', 'flag': '🇰🇷'},
+    {'code': 'zh', 'name': '中文', 'nativeName': '中文', 'flag': '🇨🇳'},
+    {'code': 'ja', 'name': '日本語', 'nativeName': '日本語', 'flag': '🇯🇵'},
+    {'code': 'mn', 'name': 'Монгол', 'nativeName': 'Монгол', 'flag': '🇲🇳'},
+    {'code': 'ur', 'name': 'اردو', 'nativeName': 'اردو', 'flag': '🇵🇰'},
+    {'code': 'hi', 'name': 'हिन्दी', 'nativeName': 'हिन्दी', 'flag': '🇮🇳'},
   ];
 }
